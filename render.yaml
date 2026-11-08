@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: proptech-colombia
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.10.0
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://hlnedblncpjombvnlszq.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: PROPTECH_SERVER_SIGNING_SECRET
+        generateValue: true
+      - key: PROPTECH_MASTER_AUDIT_KEY
+        generateValue: true
+      - key: PROPTECH_WEBHOOK_SECRET
+        generateValue: true
