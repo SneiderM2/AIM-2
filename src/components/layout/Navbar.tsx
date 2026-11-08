@@ -2,10 +2,10 @@
 
 /**
  * @file Navbar.tsx
- * @description Barra de navegación empresarial adaptativa (Tema Blanco y Negro).
- *              Filtra estrictamente los enlaces según el rol del usuario autenticado
- *              (Arrendatario, Propietario, Administrador/Secretario) y ofrece control
- *              de sesión y alternancia de tema.
+ * @description Barra de navegación corporativa del Sistema de Gestión Inmobiliaria (SGI).
+ *              Aplica la identidad de marca oficial (Isotipo Llave+Estructura+Escudo,
+ *              Azul Marino #005088/#1B365D y Verde Esmeralda #00805A/#11CAA0) y filtra
+ *              los enlaces estrictamente según el rol activo.
  */
 
 import React from 'react';
@@ -13,7 +13,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   BarChart3,
-  Building2,
+  CreditCard,
   FileSignature,
   LayoutGrid,
   LogIn,
@@ -22,16 +22,16 @@ import {
   PlusCircle,
   Scale,
   Search,
-  ShieldCheck,
   Sun,
-  User,
 } from 'lucide-react';
 import { usePropTech } from '../../context/PropTechContext';
+import { SgiLogo } from './SgiLogo';
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, logout, theme, toggleTheme } = usePropTech();
+  const { currentUser, logout, theme, toggleTheme, activeSaasPlan, isFreeTrialActive } =
+    usePropTech();
 
   // Enlaces de navegación con control estricto de acceso por rol
   const navItems = [
@@ -50,6 +50,12 @@ export function Navbar() {
             ? 'Panel Propietario'
             : 'Mi Panel (Inquilino)',
       icon: LayoutGrid,
+      allowedRoles: ['tenant', 'landlord', 'agent'],
+    },
+    {
+      href: '/planes',
+      label: 'Planes SaaS',
+      icon: CreditCard,
       allowedRoles: ['tenant', 'landlord', 'agent'],
     },
     {
@@ -90,22 +96,20 @@ export function Navbar() {
   return (
     <header className="border-b border-slate-200 bg-white/95 text-slate-800 shadow-sm backdrop-blur-md transition-colors duration-200">
       <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        {/* Marca PropTech Colombia - Región del Sumapaz */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
-            <Building2 className="h-5 w-5" />
-          </div>
+        {/* Identidad Corporativa: SGI - Sistema de Gestión Inmobiliaria */}
+        <Link href="/" className="flex items-center gap-3">
+          <SgiLogo size="sm" variant={theme === 'dark' ? 'negative' : 'color'} />
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-extrabold tracking-tight text-slate-900 sm:text-base">
-                PropTech Sumapaz
+              <span className="text-sm font-extrabold tracking-tight text-[#1B365D] dark:text-white sm:text-base">
+                SGI • Sistema de Gestión Inmobiliaria
               </span>
-              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                Fusagasugá
+              <span className="rounded-full bg-[#00805A]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#00805A] dark:bg-[#11CAA0]/20 dark:text-[#11CAA0]">
+                Fusagasugá & Sumapaz
               </span>
             </div>
-            <p className="text-[10px] text-slate-500">
-              Ley 820/2003 • Ley 1581/2012 • Ley 527/1999
+            <p className="text-[11px] font-medium text-slate-500">
+              &ldquo;Control total de tus inmuebles, desde cualquier lugar.&rdquo;
             </p>
           </div>
         </Link>
@@ -121,8 +125,8 @@ export function Navbar() {
                 href={item.href}
                 className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                   isActive
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'bg-[#005088] text-white shadow-sm dark:bg-[#00805A]'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-[#005088] dark:text-slate-300 dark:hover:bg-slate-800'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -134,6 +138,20 @@ export function Navbar() {
 
         {/* Controles: Alternar Tema (Blanco / Negro) + Estado de Sesión y Logout */}
         <div className="flex items-center gap-2">
+          {/* Insignia de Suscripción SaaS */}
+          {(currentUser.role === 'agent' || currentUser.role === 'landlord') && (
+            <Link
+              href="/planes"
+              title="Ver plan de suscripción SaaS activo"
+              className="hidden items-center gap-1.5 rounded-xl border border-[#00805A]/30 bg-[#00805A]/10 px-2.5 py-1.5 text-[11px] font-bold text-[#00805A] xl:inline-flex dark:border-[#11CAA0]/30 dark:text-[#11CAA0]"
+            >
+              <span>
+                Plan {activeSaasPlan.toUpperCase()}
+                {isFreeTrialActive ? ' (Prueba 14d)' : ''}
+              </span>
+            </Link>
+          )}
+
           {/* Botón de Cambio de Tema (Blanco y Negro) */}
           <button
             type="button"
@@ -152,7 +170,7 @@ export function Navbar() {
           >
             {theme === 'light' ? (
               <>
-                <Moon className="h-3.5 w-3.5 text-slate-700" />
+                <Moon className="h-3.5 w-3.5 text-[#1B365D]" />
                 <span>Tema Negro</span>
               </>
             ) : (
@@ -168,9 +186,9 @@ export function Navbar() {
             <span
               className={`h-2 w-2 rounded-full ${
                 currentUser.role === 'agent'
-                  ? 'bg-amber-500'
+                  ? 'bg-[#005088]'
                   : currentUser.role === 'landlord'
-                    ? 'bg-emerald-500'
+                    ? 'bg-[#00805A]'
                     : 'bg-indigo-500'
               }`}
             />
@@ -178,7 +196,7 @@ export function Navbar() {
               <span className="text-[10px] font-bold uppercase text-slate-500">
                 {currentUser.roleLabel}
               </span>
-              <span className="max-w-[130px] truncate text-[11px] font-medium text-slate-800">
+              <span className="max-w-[120px] truncate text-[11px] font-medium text-slate-800">
                 {currentUser.fullName.split(' ')[0]}
               </span>
             </div>
@@ -198,7 +216,7 @@ export function Navbar() {
           ) : (
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#005088] px-3 py-2 text-xs font-bold text-white hover:bg-[#1B365D]"
             >
               <LogIn className="h-3.5 w-3.5" />
               <span>Login</span>

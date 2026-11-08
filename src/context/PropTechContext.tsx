@@ -108,6 +108,8 @@ export interface PaymentItem {
   paymentMethod?: 'pse' | 'nequi' | 'tarjeta_credito' | 'boton_bancolombia';
   gatewayReference: string;
   paidAt?: string;
+  lastReminderSentAt?: string;
+  lastReminderChannel?: 'whatsapp' | 'email';
 }
 
 export interface PqrsClaimItem {
@@ -360,9 +362,15 @@ interface PropTechContextValue {
   }) => void;
   updateApplicationStatus: (id: string, status: ApplicationStatusType, riskScore?: number) => void;
   deleteApplication: (id: string) => void;
-  // CRUD Contratos y Pagos
+  // CRUD Contratos, Pagos y Recordatorios Automáticos (Paso 5 SGI)
   signContractByRole: (contractId: string, role: 'landlord' | 'tenant') => void;
   payMonthlyCanon: (paymentId: string, method: NonNullable<PaymentItem['paymentMethod']>) => void;
+  sendPaymentReminder: (paymentId: string, channel: 'whatsapp' | 'email') => void;
+  sendBulkPaymentReminders: (channel: 'whatsapp' | 'email') => number;
+  // Planes SaaS SGI
+  activeSaasPlan: 'basico' | 'pyme' | 'pro';
+  isFreeTrialActive: boolean;
+  activateSaasPlan: (plan: 'basico' | 'pyme' | 'pro', isFreeTrial?: boolean) => void;
   // CRUD PQRS
   createPqrs: (input: {
     propertyTitle: string;
@@ -390,6 +398,8 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
   const [contracts, setContracts] = useState<ContractItem[]>(INITIAL_CONTRACTS);
   const [payments, setPayments] = useState<PaymentItem[]>(INITIAL_PAYMENTS);
   const [pqrsClaims, setPqrsClaims] = useState<PqrsClaimItem[]>(INITIAL_PQRS);
+  const [activeSaasPlan, setActiveSaasPlan] = useState<'basico' | 'pyme' | 'pro'>('pyme');
+  const [isFreeTrialActive, setIsFreeTrialActive] = useState<boolean>(true);
   const [hydrated, setHydrated] = useState(false);
 
   // Hidratar desde localStorage al iniciar en el cliente
@@ -676,6 +686,43 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  // --- RECORDATORIOS AUTOMÁTICOS DE COBRO (PASO 5 FLUJOGRAMA SGI) ---
+  const sendPaymentReminder: PropTechContextValue['sendPaymentReminder'] = (paymentId, channel) => {
+    const nowIso = new Date().toISOString();
+    setPayments((prev) =>
+      prev.map((p) => {
+        if (p.id !== paymentId) return p;
+        return {
+          ...p,
+          lastReminderSentAt: nowIso,
+          lastReminderChannel: channel,
+        };
+      })
+    );
+  };
+
+  const sendBulkPaymentReminders: PropTechContextValue['sendBulkPaymentReminders'] = (channel) => {
+    const nowIso = new Date().toISOString();
+    let count = 0;
+    setPayments((prev) =>
+      prev.map((p) => {
+        if (p.status !== 'pending') return p;
+        count++;
+        return {
+          ...p,
+          lastReminderSentAt: nowIso,
+          lastReminderChannel: channel,
+        };
+      })
+    );
+    return count;
+  };
+
+  const activateSaasPlan: PropTechContextValue['activateSaasPlan'] = (plan, isFreeTrial = false) => {
+    setActiveSaasPlan(plan);
+    setIsFreeTrialActive(isFreeTrial);
+  };
+
   // --- CRUD PQRS ---
   const createPqrs: PropTechContextValue['createPqrs'] = (input) => {
     const deadline = new Date();
@@ -742,6 +789,11 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
         deleteApplication,
         signContractByRole,
         payMonthlyCanon,
+        sendPaymentReminder,
+        sendBulkPaymentReminders,
+        activeSaasPlan,
+        isFreeTrialActive,
+        activateSaasPlan,
         createPqrs,
         updatePqrsStatus,
         deletePqrs,

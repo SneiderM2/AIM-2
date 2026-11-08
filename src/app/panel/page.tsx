@@ -12,6 +12,7 @@ import Link from 'next/link';
 import {
   AlertCircle,
   AlertTriangle,
+  BellRing,
   Building2,
   CheckCircle2,
   Clock,
@@ -21,7 +22,9 @@ import {
   FileSignature,
   FileWarning,
   KeyRound,
+  Mail,
   MapPin,
+  MessageSquare,
   Plus,
   PlusCircle,
   Scale,
@@ -60,10 +63,35 @@ export default function RoleCrudPanelPage() {
     deleteApplication,
     signContractByRole,
     payMonthlyCanon,
+    sendPaymentReminder,
+    sendBulkPaymentReminders,
     createPqrs,
     updatePqrsStatus,
     deletePqrs,
   } = usePropTech();
+
+  const [reminderToast, setReminderToast] = useState<string | null>(null);
+
+  const handleTriggerReminder = (
+    paymentId: string,
+    tenantName: string,
+    period: string,
+    channel: 'whatsapp' | 'email'
+  ) => {
+    sendPaymentReminder(paymentId, channel);
+    setReminderToast(
+      `Recordatorio automático SGI enviado por ${channel === 'whatsapp' ? 'WhatsApp' : 'Correo Electrónico'} a ${tenantName} (${period}).`
+    );
+    setTimeout(() => setReminderToast(null), 5000);
+  };
+
+  const handleTriggerBulkReminders = (channel: 'whatsapp' | 'email') => {
+    const count = sendBulkPaymentReminders(channel);
+    setReminderToast(
+      `Se enviaron ${count} recordatorios automáticos de cobro por ${channel === 'whatsapp' ? 'WhatsApp' : 'Correo Electrónico'} a los arrendatarios con saldo pendiente.`
+    );
+    setTimeout(() => setReminderToast(null), 5000);
+  };
 
   // Estado para creación de inmueble (Propietario / Admin)
   const [showCreatePropertyForm, setShowCreatePropertyForm] = useState(false);
@@ -176,6 +204,14 @@ export default function RoleCrudPanelPage() {
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:px-8">
+      {/* Notificación Flotante de Recordatorio WhatsApp / Email (Paso 5 SGI) */}
+      {reminderToast && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-[#11CAA0] bg-[#1B365D] px-5 py-4 text-xs font-bold text-white shadow-2xl">
+          <BellRing className="h-5 w-5 text-[#11CAA0]" />
+          <span>{reminderToast}</span>
+        </div>
+      )}
+
       {/* =====================================================================
           CABECERA PERSONALIZADA CON VISTA ESTRICTA DEL ROL ACTUAL
          ===================================================================== */}
@@ -249,6 +285,15 @@ export default function RoleCrudPanelPage() {
                     <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-400">
                       Fecha límite de pago: <strong>{pendingPayments[0].dueDate}</strong>
                     </p>
+                    {pendingPayments[0].lastReminderSentAt && (
+                      <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-1 text-[11px] font-bold text-amber-900 dark:bg-amber-950/60 dark:text-amber-300">
+                        <BellRing className="h-3.5 w-3.5" />
+                        Recordatorio automático recibido vía{' '}
+                        {pendingPayments[0].lastReminderChannel === 'whatsapp'
+                          ? 'WhatsApp'
+                          : 'Correo Electrónico'}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="mt-3">
@@ -922,6 +967,98 @@ export default function RoleCrudPanelPage() {
               ))}
             </div>
           </section>
+
+          {/* Automatización de Recordatorios de Cobro WhatsApp / Correo (Paso 5 SGI) */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+              <div>
+                <h3 className="flex items-center gap-2 text-base font-extrabold text-slate-900 dark:text-white">
+                  <BellRing className="h-5 w-5 text-[#00805A]" />
+                  Notificaciones Automáticas de Cobro por WhatsApp y Correo (Paso 5 SGI)
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Envía recordatorios de pago a tus arrendatarios en Fusagasugá con enlace directo a pasarela PSE.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleTriggerBulkReminders('whatsapp')}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#00805A] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Recordatorio Masivo WhatsApp
+              </button>
+            </div>
+            <div className="mt-4 space-y-2.5">
+              {payments.map((pay) => (
+                <div
+                  key={pay.id}
+                  className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs sm:flex-row sm:items-center"
+                >
+                  <div>
+                    <span className="font-bold text-slate-900">
+                      {pay.billingPeriod} • {pay.tenantName}
+                    </span>
+                    <p className="text-slate-500">
+                      {pay.propertyTitle} • Valor: {copFormatter.format(pay.totalAmountCop)} • Corte: {pay.dueDate}
+                    </p>
+                    {pay.lastReminderSentAt && (
+                      <p className="mt-1 font-mono text-[11px] text-[#00805A]">
+                        ✓ Recordatorio enviado vía{' '}
+                        {pay.lastReminderChannel === 'whatsapp' ? 'WhatsApp' : 'Correo'} (
+                        {pay.lastReminderSentAt.slice(0, 10)})
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
+                        pay.status === 'paid'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {pay.status === 'paid' ? 'Pagado' : 'Pendiente'}
+                    </span>
+                    {pay.status === 'pending' && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTriggerReminder(
+                              pay.id,
+                              pay.tenantName,
+                              pay.billingPeriod,
+                              'whatsapp'
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#00805A] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700"
+                        >
+                          <MessageSquare className="h-3 w-3" />
+                          WhatsApp
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTriggerReminder(
+                              pay.id,
+                              pay.tenantName,
+                              pay.billingPeriod,
+                              'email'
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#005088] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-[#1B365D]"
+                        >
+                          <Mail className="h-3 w-3" />
+                          Correo
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       )}
 
@@ -1098,6 +1235,109 @@ export default function RoleCrudPanelPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+          </section>
+
+          {/* Automatización de Recordatorios de Cobro WhatsApp / Correo (Paso 5 Flujograma SGI) */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
+              <div>
+                <h3 className="flex items-center gap-2 text-base font-extrabold text-slate-900 dark:text-white">
+                  <BellRing className="h-5 w-5 text-[#00805A]" />
+                  Automatización de Cobros y Recordatorios WhatsApp / Correo (Paso 5 SGI)
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Envía avisos automáticos de vencimiento de canon con enlace directo a botón PSE para reducir la mora a cero.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleTriggerBulkReminders('whatsapp')}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#00805A] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-emerald-700"
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  Enviar WhatsApp Masivo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTriggerBulkReminders('email')}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#005088] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-[#1B365D]"
+                >
+                  <Mail className="h-3.5 w-3.5" />
+                  Enviar Correo Masivo
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 space-y-2.5">
+              {payments.map((pay) => (
+                <div
+                  key={pay.id}
+                  className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs sm:flex-row sm:items-center dark:border-slate-800 dark:bg-slate-800/50"
+                >
+                  <div>
+                    <span className="font-bold text-slate-900 dark:text-white">
+                      {pay.billingPeriod} • Arrendatario: {pay.tenantName}
+                    </span>
+                    <p className="text-slate-500">
+                      Inmueble: {pay.propertyTitle} • Total: {copFormatter.format(pay.totalAmountCop)} • Fecha límite: {pay.dueDate}
+                    </p>
+                    {pay.lastReminderSentAt && (
+                      <p className="mt-1 font-mono text-[11px] font-bold text-[#00805A] dark:text-[#11CAA0]">
+                        ✓ Notificación enviada vía{' '}
+                        {pay.lastReminderChannel === 'whatsapp' ? 'WhatsApp' : 'Correo Electrónico'} (
+                        {pay.lastReminderSentAt.slice(0, 10)})
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase ${
+                        pay.status === 'paid'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {pay.status === 'paid' ? 'Pagado' : 'Pendiente de Cobro'}
+                    </span>
+                    {pay.status === 'pending' && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTriggerReminder(
+                              pay.id,
+                              pay.tenantName,
+                              pay.billingPeriod,
+                              'whatsapp'
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#00805A] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700"
+                        >
+                          <MessageSquare className="h-3 w-3" />
+                          WhatsApp
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleTriggerReminder(
+                              pay.id,
+                              pay.tenantName,
+                              pay.billingPeriod,
+                              'email'
+                            )
+                          }
+                          className="inline-flex items-center gap-1 rounded-lg bg-[#005088] px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-[#1B365D]"
+                        >
+                          <Mail className="h-3 w-3" />
+                          Correo
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
 

@@ -21,6 +21,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { usePropTech } from '../../context/PropTechContext';
+import { SgiLogo } from '../../components/layout/SgiLogo';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -65,14 +66,17 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Cabecera del Login */}
         <div className="text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-600/20">
-            <Building2 className="h-6 w-6" />
+          <div className="mx-auto flex justify-center">
+            <SgiLogo size="lg" variant="color" />
           </div>
-          <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            Iniciar Sesión
+          <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-[#1B365D] dark:text-white sm:text-3xl">
+            Iniciar Sesión en SGI
           </h1>
-          <p className="mt-2 text-xs text-slate-500">
-            Plataforma PropTech & Legal-Tech • Región del Sumapaz (Fusagasugá)
+          <p className="mt-1 text-xs font-bold text-[#00805A] dark:text-[#11CAA0]">
+            Sistema de Gestión Inmobiliaria • Fusagasugá & Sumapaz
+          </p>
+          <p className="mt-1 text-xs text-slate-500">
+            &ldquo;Control total de tus inmuebles, desde cualquier lugar.&rdquo;
           </p>
         </div>
 
