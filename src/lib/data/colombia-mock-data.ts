@@ -1,0 +1,203 @@
+/**
+ * @file colombia-mock-data.ts
+ * @description Semilla de datos verificados del mercado inmobiliario colombiano,
+ *              histórico IPC DANE, contratos Ley 820 de 2003 y métricas Tremor.
+ */
+
+import type { PropertyCardDTO } from '../../components/search/PropertySearchSplitView';
+
+export const DANE_HISTORICAL_IPC: Record<number, number> = {
+  2021: 5.62,
+  2022: 13.12,
+  2023: 9.28,
+  2024: 5.2,
+  2025: 4.45,
+};
+
+export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
+  {
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+    slug: 'apartamento-exterior-chico-norte-bogota',
+    title: 'Apartamento Exterior en Chicó Norte con Terraza Privada',
+    propertyType: 'apartamento',
+    city: 'Bogotá D.C.',
+    neighborhood: 'Chicó Norte',
+    estrato: 6,
+    monthlyRentCop: 4200000,
+    administrationFeeCop: 680000,
+    isAdministrationIncluded: false,
+    privateAreaM2: 118,
+    bedrooms: 3,
+    bathrooms: 3,
+    parkingSpots: 2,
+    latitude: 4.6768,
+    longitude: -74.0482,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
+    slug: 'apartamento-moderno-el-poblado-medellin',
+    title: 'Apartamento Panorámico en El Poblado - Sector Provenza',
+    propertyType: 'apartamento',
+    city: 'Medellín',
+    neighborhood: 'El Poblado',
+    estrato: 6,
+    monthlyRentCop: 3850000,
+    administrationFeeCop: 520000,
+    isAdministrationIncluded: true,
+    privateAreaM2: 96,
+    bedrooms: 2,
+    bathrooms: 2,
+    parkingSpots: 2,
+    latitude: 6.2088,
+    longitude: -75.5658,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'c2eebc99-9c0b-4ef8-bb6d-6bb9bd380a33',
+    slug: 'apartaestudio-chapinero-alto-bogota',
+    title: 'Apartaestudio Loft en Chapinero Alto cerca a Zona G',
+    propertyType: 'apartaestudio',
+    city: 'Bogotá D.C.',
+    neighborhood: 'Chapinero Alto',
+    estrato: 4,
+    monthlyRentCop: 1950000,
+    administrationFeeCop: 260000,
+    isAdministrationIncluded: false,
+    privateAreaM2: 48,
+    bedrooms: 1,
+    bathrooms: 1,
+    parkingSpots: 1,
+    latitude: 4.6486,
+    longitude: -74.0564,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'd3eebc99-9c0b-4ef8-bb6d-6bb9bd380a44',
+    slug: 'casa-campestre-conjunto-cerrado-chia',
+    title: 'Casa Familiar en Conjunto Cerrado con Jardín en Chía',
+    propertyType: 'casa',
+    city: 'Chía',
+    neighborhood: 'Vereda Bojacá',
+    estrato: 5,
+    monthlyRentCop: 5100000,
+    administrationFeeCop: 590000,
+    isAdministrationIncluded: false,
+    privateAreaM2: 210,
+    bedrooms: 4,
+    bathrooms: 4,
+    parkingSpots: 3,
+    latitude: 4.8685,
+    longitude: -74.0369,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55',
+    slug: 'apartamento-ciudad-jardin-cali',
+    title: 'Apartamento Fresco e Iluminado en Ciudad Jardín',
+    propertyType: 'apartamento',
+    city: 'Cali',
+    neighborhood: 'Ciudad Jardín',
+    estrato: 5,
+    monthlyRentCop: 2700000,
+    administrationFeeCop: 410000,
+    isAdministrationIncluded: true,
+    privateAreaM2: 105,
+    bedrooms: 3,
+    bathrooms: 3,
+    parkingSpots: 2,
+    latitude: 3.3688,
+    longitude: -76.5319,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'f5eebc99-9c0b-4ef8-bb6d-6bb9bd380a66',
+    slug: 'apartamento-alto-prado-barranquilla',
+    title: 'Apartamento Familiar en Alto Prado con Balcón Amplio',
+    propertyType: 'apartamento',
+    city: 'Barranquilla',
+    neighborhood: 'Alto Prado',
+    estrato: 5,
+    monthlyRentCop: 2450000,
+    administrationFeeCop: 380000,
+    isAdministrationIncluded: false,
+    privateAreaM2: 98,
+    bedrooms: 3,
+    bathrooms: 2,
+    parkingSpots: 1,
+    latitude: 11.0041,
+    longitude: -74.8069,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'a6eebc99-9c0b-4ef8-bb6d-6bb9bd380a77',
+    slug: 'apartamento-laureles-medellin-estrato-4',
+    title: 'Apartamento Clásico Renovado en Laureles Segundo Parque',
+    propertyType: 'apartamento',
+    city: 'Medellín',
+    neighborhood: 'Laureles',
+    estrato: 4,
+    monthlyRentCop: 2600000,
+    administrationFeeCop: 290000,
+    isAdministrationIncluded: true,
+    privateAreaM2: 88,
+    bedrooms: 3,
+    bathrooms: 2,
+    parkingSpots: 1,
+    latitude: 6.2442,
+    longitude: -75.5951,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+  {
+    id: 'b7eebc99-9c0b-4ef8-bb6d-6bb9bd380a88',
+    slug: 'local-comercial-cabecera-bucaramanga',
+    title: 'Local Comercial Esquinero Vitrinas Dobles en Cabecera del Llano',
+    propertyType: 'local_comercial',
+    city: 'Bucaramanga',
+    neighborhood: 'Cabecera del Llano',
+    estrato: 5,
+    monthlyRentCop: 4800000,
+    administrationFeeCop: 450000,
+    isAdministrationIncluded: false,
+    privateAreaM2: 74,
+    bedrooms: 0,
+    bathrooms: 2,
+    parkingSpots: 2,
+    latitude: 7.1193,
+    longitude: -73.1127,
+    coverImageUrl:
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1000&q=80',
+    isLey820Compliant: true,
+  },
+];
+
+export interface MonthlyRevenueMetric {
+  month: string;
+  recaudadoCop: number;
+  esperadoCop: number;
+  tasaOcupacionPct: number;
+  moraPct: number;
+}
+
+export const TREMOR_REVENUE_SERIES: MonthlyRevenueMetric[] = [
+  { month: 'Jun 2026', recaudadoCop: 148500000, esperadoCop: 152000000, tasaOcupacionPct: 93.4, moraPct: 2.3 },
+  { month: 'Jul 2026', recaudadoCop: 156200000, esperadoCop: 158000000, tasaOcupacionPct: 94.8, moraPct: 1.1 },
+  { month: 'Ago 2026', recaudadoCop: 161900000, esperadoCop: 165000000, tasaOcupacionPct: 95.2, moraPct: 1.8 },
+  { month: 'Sep 2026', recaudadoCop: 169400000, esperadoCop: 171000000, tasaOcupacionPct: 96.1, moraPct: 0.9 },
+  { month: 'Oct 2026', recaudadoCop: 175800000, esperadoCop: 178000000, tasaOcupacionPct: 96.7, moraPct: 1.2 },
+  { month: 'Nov 2026', recaudadoCop: 184200000, esperadoCop: 186000000, tasaOcupacionPct: 97.4, moraPct: 0.9 },
+];

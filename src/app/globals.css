@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 transition-colors duration-200 antialiased;
+  }
+
+  html.dark body {
+    @apply bg-neutral-950 text-neutral-100;
+  }
+}
+
+/* Adaptación integral de Modo Negro (Alto Contraste Blanco y Negro) en toda la plataforma */
+html.dark main,
+html.dark .min-h-screen {
+  background-color: #0a0a0a !important;
+  color: #f5f5f5 !important;
+}
+
+html.dark header {
+  background-color: rgba(15, 15, 15, 0.95) !important;
+  border-color: #262626 !important;
+}
+
+html.dark section,
+html.dark article,
+html.dark form {
+  background-color: #121212 !important;
+  border-color: #262626 !important;
+  color: #f5f5f5 !important;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3,
+html.dark th {
+  color: #ffffff !important;
+}
+
+html.dark p,
+html.dark span,
+html.dark td,
+html.dark label {
+  color: #d4d4d4;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1c1c1c !important;
+  border-color: #383838 !important;
+  color: #ffffff !important;
+}
+
+html.dark thead tr,
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #181818 !important;
+  border-color: #2a2a2a !important;
+}
+
+html.dark tbody tr:hover {
+  background-color: #1f1f1f !important;
+}
