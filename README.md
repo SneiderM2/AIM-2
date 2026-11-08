@@ -1,21 +1,25 @@
-# PropTech Colombia — Plataforma Transaccional & Legal-Tech
+# SGI — Sistema de Gestión Inmobiliaria (Fusagasugá & Región del Sumapaz)
 
-Plataforma web inmobiliaria de nivel empresarial adaptada al mercado y ordenamiento jurídico de Colombia (**Ley 820 de 2003**, **Ley 1581 de 2012 / Habeas Data**, **Ley 527 de 1999 / Firma Electrónica SHA-256** y **Estándar IEEE 830**).
+> **“Control total de tus inmuebles, desde cualquier lugar.”**  
+> *“Orden y tranquilidad para quienes cuidan el patrimonio de las familias colombianas.”*
+
+### 🌐 Acceso Directo a la Plataforma en Vivo:
+👉 **[Abrir Plataforma SGI en la Nube (Render)](https://aim-2-bg7r.onrender.com)**
+
+---
 
 ## Características Principales
-- **3 Roles con Panel CRUD Completo (`/login` y `/panel`):**
-  1. **Propietario / Arrendador (`landlord`):** CRUD de inmuebles con validación del tope legal del 1% comercial (Art. 18 Ley 820), aprobación de postulaciones y firma electrónica.
-  2. **Arrendatario / Inquilino (`tenant`):** Búsqueda georreferenciada, postulación con deudor solidario, firma electrónica con OTP, pago de cánones (PSE/Nequi) y radicación de PQRS (Art. 19 Ley 820).
-  3. **Agente Inmobiliario / Admin (`agent`):** Auditoría global de propiedades, calificación de solvencia crediticia (`0–1000`) y gestión de reclamos con control de 15 días hábiles ante la SIC.
-- **Buscador Inmobiliario Split-View (`/`)**: Sincronización de filtros multidimensionales en tiempo real en la URL con `nuqs` y pines PostGIS interactivos.
-- **Cambio de Tema (Blanco / Negro):** Conmutador instantáneo en la barra superior con persistencia en `localStorage`.
-- **Listo para GitHub Pages y Supabase:** Incluye workflow `.github/workflows/deploy-gh-pages.yml` y migración SQL completa en `supabase/migrations/0001_initial_proptech_schema.sql`.
+- **Enfoque Regional:** Propiedades verificadas en **Fusagasugá** (*Balmoral, Centro, Manila, Chinauta, Coburgo, Pekín*) y municipios de la **Provincia del Sumapaz** (*Silvania, Arbeláez, Pasca*).
+- **3 Roles con Vistas Independientes (`/login` y `/panel`):**
+  1. **Administrador / Agente (`admin@proptech.co` / `admin123`):** Inventario global de inmuebles, ubicación, estado de ocupación (*Ocupado / Disponible*), recordatorios masivos por WhatsApp/Correo y auditoría legal.
+  2. **Propietario / Arrendador (`propietario@proptech.co` / `propietario123`):** CRUD de sus propiedades con validación del tope legal del 1% comercial (Art. 18 Ley 820), aprobación de postulaciones, firma electrónica y envío de recordatorios de cobro.
+  3. **Arrendatario / Inquilino (`arrendatario@proptech.co` / `inquilino123`):** Estado de cuenta claro (*¿Qué cuota le falta?*), pago en línea vía **PSE / Nequi**, postulación a inmuebles, firma de contratos y radicación de PQRS.
+- **Modelo SaaS y Planes de Suscripción (`/planes`):** Plan Básico, Plan PYME/Estándar, Plan Pro/Premium, servicio de Onboarding y **Prueba Gratuita por 14 días**.
+- **Cumplimiento Normativo Colombiano:** Ley 820 de 2003 (Arrendamiento de Vivienda Urbana), Ley 1581 de 2012 (Habeas Data) y Ley 527 de 1999 (Firma Digital SHA-256).
 
-## Inicio Rápido
+## Ejecución Local
 
 ```bash
 npm install
 npm run dev
 ```
-
-Abre `http://localhost:3000` en tu navegador. Para instrucciones detalladas de despliegue en GitHub Pages y conexión con Supabase, consulta `../GUIA-COMPLETA-PROPTECH-COLOMBIA.md`.
