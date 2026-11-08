@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useTransition } from 'react';
+import Link from 'next/link';
 import {
   AlertOctagon,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
   Lock,
   ShieldCheck,
 } from 'lucide-react';
+import { usePropTech } from '../../context/PropTechContext';
 import {
   executeElectronicSignatureAction,
   generateContractDraftAction,
@@ -33,7 +35,39 @@ const copFormatter = new Intl.NumberFormat('es-CO', {
 });
 
 export default function ContractsPage() {
+  const { currentUser } = usePropTech();
   const [isPending, startTransition] = useTransition();
+
+  // Control de Acceso: Exclusivo Administrador
+  if (currentUser.role !== 'agent') {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+          <Lock className="h-7 w-7" />
+        </div>
+        <h1 className="mt-4 text-2xl font-extrabold text-slate-900 dark:text-white">
+          Módulo Reservado para el Administrador
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          La emisión de contratos maestros Ley 820 y parametrización criptográfica SHA-256 está reservada exclusivamente para el Administrador / Lonja Inmobiliaria. Para consultar o firmar tus contratos individuales, dirígete a tu panel principal.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link
+            href="/panel"
+            className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700"
+          >
+            Ir a Mi Panel
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          >
+            Iniciar Sesión como Administrador
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Parámetros del contrato Ley 820 de 2003
   const [agreedMonthlyRentCop, setAgreedMonthlyRentCop] = useState(3850000);

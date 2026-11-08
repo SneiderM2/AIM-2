@@ -7,12 +7,14 @@
  */
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   ArrowUpRight,
   BarChart3,
   Calculator,
   CheckCircle2,
   DollarSign,
+  Lock,
   Percent,
   TrendingUp,
 } from 'lucide-react';
@@ -20,6 +22,7 @@ import {
   DANE_HISTORICAL_IPC,
   TREMOR_REVENUE_SERIES,
 } from '../../lib/data/colombia-mock-data';
+import { usePropTech } from '../../context/PropTechContext';
 
 const copFormatter = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -28,9 +31,41 @@ const copFormatter = new Intl.NumberFormat('es-CO', {
 });
 
 export default function AnalyticsDashboardPage() {
-  const [currentRentCop, setCurrentRentCop] = useState(3200000);
+  const { currentUser } = usePropTech();
+  const [currentRentCop, setCurrentRentCop] = useState(1400000);
   const [selectedIpcYear, setSelectedIpcYear] = useState<number>(2025);
-  const [commercialValueCop, setCommercialValueCop] = useState(420000000);
+  const [commercialValueCop, setCommercialValueCop] = useState(180000000);
+
+  // Control de Acceso: Exclusivo Administrador / Secretario
+  if (currentUser.role !== 'agent') {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+          <Lock className="h-7 w-7" />
+        </div>
+        <h1 className="mt-4 text-2xl font-extrabold text-slate-900 dark:text-white">
+          Módulo Reservado para el Administrador
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          El panel de analítica macroeconómica, liquidador de IPC DANE y métricas consolidadas de mora está reservado para el Administrador / Lonja Inmobiliaria. Para revisar tus pagos y arriendos, ingresa a tu panel.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link
+            href="/panel"
+            className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700"
+          >
+            Ir a Mi Panel
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          >
+            Iniciar Sesión como Administrador
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const certifiedIpcPct = DANE_HISTORICAL_IPC[selectedIpcYear] ?? 4.45;
   const maxIncrementCop = Math.round(currentRentCop * (certifiedIpcPct / 100));

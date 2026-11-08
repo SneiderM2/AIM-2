@@ -2,21 +2,25 @@
 
 /**
  * @file page.tsx (/publicar)
- * @description Módulo RF-02: Publicación de Inmuebles con validación en tiempo real
- *              del Artículo 18 de la Ley 820 de 2003 y Georreferenciación PostGIS.
+ * @description Módulo RF-02: Publicación de Inmuebles en la Región del Sumapaz (Fusagasugá)
+ *              con validación en tiempo real del Artículo 18 de la Ley 820 de 2003
+ *              y Georreferenciación PostGIS. Acceso restringido para Propietarios y Administrador.
  */
 
 import React, { useState, useTransition } from 'react';
+import Link from 'next/link';
 import {
   AlertTriangle,
   Building2,
   CheckCircle2,
+  Lock,
   MapPin,
   Scale,
   ShieldCheck,
 } from 'lucide-react';
 import { publishPropertyAction } from '../actions/proptech.actions';
 import type { PropertyPublicationInput } from '../../lib/validations/proptech.schemas';
+import { usePropTech } from '../../context/PropTechContext';
 
 const copFormatter = new Intl.NumberFormat('es-CO', {
   style: 'currency',
@@ -25,35 +29,37 @@ const copFormatter = new Intl.NumberFormat('es-CO', {
 });
 
 export default function PublishPropertyPage() {
+  const { currentUser } = usePropTech();
   const [isPending, startTransition] = useTransition();
+
   const [formState, setFormState] = useState<PropertyPublicationInput>({
     matriculaInmobiliaria: '050C-01489210',
     catastralChip: 'AAA0098BCDE',
-    title: 'Apartamento Exterior en Rosales con Vista a los Cerros Orientales',
+    title: 'Apartamento Exterior en Balmoral con Terraza y Vista Panorámica',
     description:
-      'Inmueble de lujo en séptimo piso exterior con acabados arquitectónicos modernos, iluminación natural cruzada, ventanería termoacústica, cocina abierta equipada y dos parqueaderos independientes en sótano.',
+      'Inmueble residencial en Fusagasugá (Sumapaz) con acabados arquitectónicos modernos, iluminación natural cruzada, ventanería acústica, cocina abierta y parqueadero privado.',
     propertyType: 'apartamento',
     destination: 'vivienda_urbana',
     department: 'Cundinamarca',
-    city: 'Bogotá D.C.',
-    neighborhood: 'Los Rosales',
-    addressLine: 'Carrera 4 # 72 - 35 Apto 702',
-    estrato: 6,
-    commercialValuationCop: 480000000,
-    cadastralValuationCop: 280000000,
-    monthlyRentCop: 4500000,
-    administrationFeeCop: 720000,
+    city: 'Fusagasugá',
+    neighborhood: 'Balmoral',
+    addressLine: 'Carrera 6 # 14 - 30 Apto 402',
+    estrato: 4,
+    commercialValuationCop: 180000000,
+    cadastralValuationCop: 115000000,
+    monthlyRentCop: 1450000,
+    administrationFeeCop: 180000,
     isAdministrationIncluded: false,
-    privateAreaM2: 124,
-    builtAreaM2: 136,
+    privateAreaM2: 88,
+    builtAreaM2: 95,
     bedrooms: 3,
-    bathrooms: 3,
-    parkingSpots: 2,
-    floorNumber: 7,
-    constructionYear: 2021,
-    amenities: ['Vigilancia 24/7', 'Gimnasio', 'Terraza BBQ', 'Planta Eléctrica Suplencia Total'],
-    latitude: 4.6559,
-    longitude: -74.0512,
+    bathrooms: 2,
+    parkingSpots: 1,
+    floorNumber: 4,
+    constructionYear: 2022,
+    amenities: ['Vigilancia 24/7', 'Terraza BBQ', 'Salón Social'],
+    latitude: 4.3412,
+    longitude: -74.367,
   });
 
   const [actionResult, setActionResult] = useState<{
@@ -68,22 +74,47 @@ export default function PublishPropertyPage() {
     };
   } | null>(null);
 
-  // Cálculo reactivo del tope legal Art. 18 Ley 820 de 2003 (1% del avalúo comercial)
-  const maxLegalRentArt18 = formState.commercialValuationCop * 0.01;
-  const isRentExceedingArt18 =
-    formState.destination === 'vivienda_urbana' &&
-    formState.monthlyRentCop > maxLegalRentArt18;
+  // Control de Acceso por Rol: Solo Propietario o Administrador/Secretario
+  if (currentUser.role === 'tenant') {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+          <Lock className="h-7 w-7" />
+        </div>
+        <h1 className="mt-4 text-2xl font-extrabold text-slate-900 dark:text-white">
+          Módulo Reservado para Propietarios y Administradores
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          Actualmente has iniciado sesión como <strong>Arrendatario / Inquilino</strong>. La publicación de inmuebles en la plataforma está reservada exclusivamente para propietarios y agentes inmobiliarios.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link
+            href="/panel"
+            className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700"
+          >
+            Ir a Mi Panel de Inquilino
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          >
+            Iniciar Sesión como Propietario
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const isValuationExceeding2xCadastral =
-    formState.destination === 'vivienda_urbana' &&
-    typeof formState.cadastralValuationCop === 'number' &&
-    formState.commercialValuationCop > formState.cadastralValuationCop * 2;
+  const maxCanonLegalCop = formState.commercialValuationCop * 0.01;
+  const isRentExceedingArt18 = formState.monthlyRentCop > maxCanonLegalCop;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setActionResult(null);
+
     startTransition(async () => {
-      const res = await publishPropertyAction(formState);
-      setActionResult(res);
+      const result = await publishPropertyAction(formState);
+      setActionResult(result);
     });
   };
 
@@ -95,11 +126,11 @@ export default function PublishPropertyPage() {
             <Scale className="h-3.5 w-3.5" />
             Módulo RF-02 • Control Normativo Ley 820 de 2003 (Art. 18)
           </span>
-          <h1 className="mt-2 text-2xl font-extrabold text-slate-900">
-            Publicación y Georreferenciación de Inmueble
+          <h1 className="mt-2 text-2xl font-extrabold text-slate-900 dark:text-white">
+            Publicación y Georreferenciación de Inmueble (Sumapaz)
           </h1>
-          <p className="text-sm text-slate-600">
-            Validación automática del tope legal del canon mensual ($1\%$ del avalúo comercial) y coordenadas PostGIS (`EPSG:4326`).
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Validación automática del tope legal del canon mensual (1% del avalúo comercial) y coordenadas PostGIS (EPSG:4326) en Fusagasugá.
           </p>
         </div>
       </div>
@@ -108,11 +139,11 @@ export default function PublishPropertyPage() {
         {/* Formulario Principal */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-8"
+          className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-8 dark:border-slate-800 dark:bg-slate-900"
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Matrícula Inmobiliaria SNR
               </label>
               <input
@@ -127,7 +158,7 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Destinación Contractual
               </label>
               <select
@@ -138,16 +169,16 @@ export default function PublishPropertyPage() {
                     destination: e.target.value as 'vivienda_urbana' | 'comercial',
                   })
                 }
-                className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium"
+                className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm"
               >
-                <option value="vivienda_urbana">Vivienda Urbana (Regulada por Ley 820/2003)</option>
-                <option value="comercial">Inmueble Comercial (Código de Comercio Art. 518+)</option>
+                <option value="vivienda_urbana">Vivienda Urbana (Regulado por Ley 820/03)</option>
+                <option value="comercial">Comercial (Código de Comercio)</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-slate-700">
+            <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Título de la Publicación
             </label>
             <input
@@ -159,9 +190,39 @@ export default function PublishPropertyPage() {
             />
           </div>
 
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                Municipio (Región del Sumapaz)
+              </label>
+              <select
+                value={formState.city}
+                onChange={(e) => setFormState({ ...formState, city: e.target.value })}
+                className="mt-1 h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="Fusagasugá">Fusagasugá</option>
+                <option value="Silvania">Silvania</option>
+                <option value="Arbeláez">Arbeláez</option>
+                <option value="Pasca">Pasca</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                Barrio / Sector
+              </label>
+              <input
+                type="text"
+                value={formState.neighborhood}
+                onChange={(e) => setFormState({ ...formState, neighborhood: e.target.value })}
+                className="mt-1 h-10 w-full rounded-lg border border-slate-300 px-3 text-sm"
+                required
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Avalúo Catastral (COP)
               </label>
               <input
@@ -178,7 +239,7 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Avalúo Comercial Estimado (COP)
               </label>
               <input
@@ -196,7 +257,7 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Canon Mensual Solicitado (COP)
               </label>
               <input
@@ -220,7 +281,7 @@ export default function PublishPropertyPage() {
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Estrato (1-6)
               </label>
               <input
@@ -236,7 +297,7 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                 Área Privada (m²)
               </label>
               <input
@@ -250,8 +311,8 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
-                Latitud (Colombia)
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                Latitud (Fusagasugá)
               </label>
               <input
                 type="number"
@@ -265,8 +326,8 @@ export default function PublishPropertyPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase text-slate-700">
-                Longitud (Colombia)
+              <label className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                Longitud (Fusagasugá)
               </label>
               <input
                 type="number"
@@ -301,90 +362,49 @@ export default function PublishPropertyPage() {
             </h2>
 
             <div className="mt-4 space-y-3 text-xs">
-              <div className="rounded-xl bg-slate-800/90 p-3">
+              <div>
                 <span className="text-slate-400">Tope Máximo Legal del Canon (1% Comercial):</span>
-                <p className="mt-0.5 text-lg font-extrabold text-white">
-                  {copFormatter.format(maxLegalRentArt18)} / mes
+                <p className="text-xl font-extrabold text-white">
+                  {copFormatter.format(maxCanonLegalCop)} / mes
                 </p>
               </div>
 
-              {isRentExceedingArt18 ? (
-                <div className="flex items-start gap-2 rounded-xl border border-rose-500/40 bg-rose-950/60 p-3 text-rose-200">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
-                  <p>
-                    <strong>Infracción Art. 18 Ley 820/2003:</strong> El canon solicitado supera el
-                    1% del avalúo comercial estimado. La Server Action y el constraint SQL{' '}
-                    <code>chk_ley820_art18_max_canon</code> bloquearán el registro.
-                  </p>
+              <div
+                className={`rounded-xl border p-3 ${
+                  isRentExceedingArt18
+                    ? 'border-rose-500/50 bg-rose-950/40 text-rose-200'
+                    : 'border-emerald-500/50 bg-emerald-950/40 text-emerald-200'
+                }`}
+              >
+                <div className="flex items-start gap-2">
+                  {isRentExceedingArt18 ? (
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+                  ) : (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  )}
+                  <div>
+                    <span className="font-bold">
+                      {isRentExceedingArt18
+                        ? 'Bloqueo Normativo: Canon Ilegal'
+                        : 'Canon Conforme a Derecho:'}
+                    </span>
+                    <p className="mt-0.5 text-[11px] leading-relaxed">
+                      {isRentExceedingArt18
+                        ? `El valor excede el tope legal por ${copFormatter.format(formState.monthlyRentCop - maxCanonLegalCop)}. La Ley 820 prohíbe cánones superiores al 1% del avalúo comercial.`
+                        : 'El valor mensual se encuentra dentro del límite legal permitido en Colombia.'}
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex items-start gap-2 rounded-xl border border-emerald-500/40 bg-emerald-950/50 p-3 text-emerald-200">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                  <p>
-                    <strong>Canon Conforme a Derecho:</strong> El valor mensual se encuentra dentro
-                    del límite legal permitido para vivienda urbana en Colombia.
-                  </p>
-                </div>
-              )}
+              </div>
 
-              {isValuationExceeding2xCadastral && (
-                <div className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-950/60 p-3 text-amber-200">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                  <p>
-                    <strong>Alerta Inciso 2 Art. 18 Ley 820:</strong> El avalúo comercial estimado
-                    excede el doble (2x) del avalúo catastral vigente.
-                  </p>
-                </div>
-              )}
-
-              <div className="rounded-xl bg-slate-800/90 p-3 font-mono text-[11px] text-slate-300">
-                <div className="flex items-center gap-1 text-emerald-400">
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span>Geometría PostGIS Generada:</span>
-                </div>
-                <p className="mt-1 break-all">
-                  SRID=4326;POINT({formState.longitude} {formState.latitude})
+              <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3 font-mono text-[11px] text-slate-300">
+                <span className="font-bold text-emerald-400">SRID:4326 (PostGIS Fusagasugá)</span>
+                <p className="mt-1 truncate">
+                  POINT({formState.longitude.toFixed(4)} {formState.latitude.toFixed(4)})
                 </p>
               </div>
             </div>
           </div>
-
-          {actionResult && (
-            <div
-              className={`rounded-2xl border p-5 text-xs ${
-                actionResult.success
-                  ? 'border-emerald-300 bg-emerald-50 text-emerald-950'
-                  : 'border-rose-300 bg-rose-50 text-rose-950'
-              }`}
-            >
-              {actionResult.success && actionResult.data ? (
-                <div className="space-y-2">
-                  <p className="font-bold text-emerald-800">
-                    ✓ Inmueble validado y registrado exitosamente
-                  </p>
-                  <p>
-                    <strong>UUID:</strong> <code>{actionResult.data.propertyId}</code>
-                  </p>
-                  <p>
-                    <strong>Slug:</strong> <code>{actionResult.data.slug}</code>
-                  </p>
-                  <p>
-                    <strong>PostGIS WKT:</strong> <code>{actionResult.data.postgisWkt}</code>
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <p className="font-bold text-rose-800">✗ {actionResult.error}</p>
-                  {actionResult.fieldErrors &&
-                    Object.entries(actionResult.fieldErrors).map(([field, messages]) => (
-                      <p key={field}>
-                        <strong>{field}:</strong> {messages?.join(', ')}
-                      </p>
-                    ))}
-                </div>
-              )}
-            </div>
-          )}
         </aside>
       </div>
     </div>

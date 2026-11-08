@@ -2,9 +2,10 @@
 
 /**
  * @file PropTechContext.tsx
- * @description Estado global reactivo y persistente que gestiona la sesión de los 3 roles
- *              (Arrendador/Propietario, Arrendatario/Inquilino, Agente/Administrador) y los CRUDs
- *              completos de Inmuebles, Postulaciones, Contratos, Pagos y PQRS.
+ * @description Estado global reactivo y persistente centrado en la Región del Sumapaz
+ *              (Fusagasugá, Silvania, Arbeláez, Pasca - Cundinamarca). Gestiona la sesión
+ *              con autenticación por correo/contraseña y vistas estrictamente separadas
+ *              por rol (Propietario, Arrendatario, Agente Inmobiliario / Administrador).
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
@@ -131,48 +132,59 @@ export interface PqrsClaimItem {
 }
 
 // ============================================================================
-// 2. USUARIOS DEMO PRECONFIGURADOS PARA LOS 3 ROLES
+// 2. USUARIOS DEMO Y CREDENCIALES POR ROL
 // ============================================================================
 
-export const DEMO_ROLE_USERS: Record<UserRoleType, AuthenticatedUser> = {
+export interface DemoUserAccount extends AuthenticatedUser {
+  demoPassword: string;
+  alternativeEmails: string[];
+}
+
+export const DEMO_ROLE_USERS: Record<UserRoleType, DemoUserAccount> = {
   landlord: {
     id: '11111111-1111-4111-8111-111111111111',
     fullName: 'Carlos Eduardo Gómez Restrepo',
-    email: 'carlos.gomez@propietarios.co',
+    email: 'propietario@proptech.co',
     documentType: 'CC',
     documentNumber: '79845120',
     phoneNumber: '+573104528910',
     role: 'landlord',
     roleLabel: 'Propietario / Arrendador',
     isIdentityVerified: true,
+    demoPassword: 'propietario123',
+    alternativeEmails: ['carlos.gomez@propietarios.co', 'propietario@sumapaz.com', 'propietario@gmail.com'],
   },
   tenant: {
     id: '22222222-2222-4222-8222-222222222222',
     fullName: 'Valentina Restrepo Jaramillo',
-    email: 'valentina.restrepo@inquilinos.co',
+    email: 'arrendatario@proptech.co',
     documentType: 'CC',
     documentNumber: '1020765432',
     phoneNumber: '+573158901234',
     role: 'tenant',
     roleLabel: 'Arrendatario / Inquilino',
     isIdentityVerified: true,
+    demoPassword: 'inquilino123',
+    alternativeEmails: ['valentina.restrepo@inquilinos.co', 'inquilino@sumapaz.com', 'inquilino@gmail.com', 'arrendatario@gmail.com'],
   },
   agent: {
     id: '33333333-3333-4333-8333-333333333333',
     fullName: 'Andrés Felipe Vargas (Lonja & Admin)',
-    email: 'auditoria@inmobiliariaandina.co',
+    email: 'admin@proptech.co',
     documentType: 'NIT',
     documentNumber: '900412889-1',
     phoneNumber: '+573009123456',
     role: 'agent',
-    roleLabel: 'Agente Inmobiliario / Admin',
+    roleLabel: 'Agente Inmobiliario / Administrador',
     isIdentityVerified: true,
-    professionalCard: 'LONJA-BOG-2026-8841',
+    professionalCard: 'LONJA-SUMAPAZ-2026-8841',
+    demoPassword: 'admin123',
+    alternativeEmails: ['auditoria@inmobiliariaandina.co', 'secretario@proptech.co', 'admin@sumapaz.com', 'admin@gmail.com'],
   },
 };
 
 // ============================================================================
-// 3. DATOS INICIALES ENRIQUECIDOS PARA LOS CRUDS
+// 3. DATOS INICIALES ENRIQUECIDOS PARA LA REGIÓN DEL SUMAPAZ
 // ============================================================================
 
 const INITIAL_MANAGED_PROPERTIES: ManagedProperty[] = INITIAL_COLOMBIAN_PROPERTIES.map(
@@ -181,20 +193,11 @@ const INITIAL_MANAGED_PROPERTIES: ManagedProperty[] = INITIAL_COLOMBIAN_PROPERTI
     ownerId: '11111111-1111-4111-8111-111111111111',
     ownerName: 'Carlos Eduardo Gómez Restrepo',
     matriculaInmobiliaria: `050C-019482${idx + 10}`,
-    commercialValuationCop: prop.monthlyRentCop * 115, // Cumple tope 1% Art. 18 Ley 820
-    cadastralValuationCop: prop.monthlyRentCop * 70,
-    status: 'available',
-    addressLine: `Calle ${70 + idx * 4} # ${11 + idx} - ${24 + idx}, ${prop.neighborhood}`,
-    department:
-      prop.city === 'Medellín' || prop.city === 'Envigado'
-        ? 'Antioquia'
-        : prop.city === 'Cali'
-          ? 'Valle del Cauca'
-          : prop.city === 'Barranquilla'
-            ? 'Atlántico'
-            : prop.city === 'Bucaramanga'
-              ? 'Santander'
-              : 'Cundinamarca',
+    commercialValuationCop: prop.monthlyRentCop * 125, // Cumple estrictamente tope 1% Art. 18 Ley 820
+    cadastralValuationCop: prop.monthlyRentCop * 75,
+    status: idx === 1 ? 'rented' : idx === 3 ? 'rented' : 'available',
+    addressLine: `Carrera ${idx + 4} # ${11 + idx} - ${20 + idx * 2}, ${prop.neighborhood}`,
+    department: 'Cundinamarca (Región del Sumapaz)',
   })
 );
 
@@ -202,17 +205,17 @@ const INITIAL_APPLICATIONS: LeaseApplicationItem[] = [
   {
     id: 'app-1001',
     propertyId: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    propertyTitle: 'Apartamento Panorámico en El Poblado - Sector Provenza',
-    propertyCity: 'Medellín',
-    monthlyRentCop: 3850000,
+    propertyTitle: 'Apartamento Panorámico en Fusagasugá Centro - Edificio Mirador',
+    propertyCity: 'Fusagasugá',
+    monthlyRentCop: 1200000,
     applicantId: '22222222-2222-4222-8222-222222222222',
     applicantName: 'Valentina Restrepo Jaramillo',
     applicantDocument: 'CC 1020765432',
-    declaredMonthlyIncomeCop: 14500000,
+    declaredMonthlyIncomeCop: 4500000,
     employmentType: 'empleado',
-    employerName: 'Bancolombia S.A.',
-    coSignerFullName: ' Mauricio Restrepo Cano',
-    coSignerIncomeCop: 18200000,
+    employerName: 'Alcaldía de Fusagasugá',
+    coSignerFullName: 'Mauricio Restrepo Cano',
+    coSignerIncomeCop: 6200000,
     riskScore: 865,
     status: 'approved',
     createdAt: '2026-11-02',
@@ -220,17 +223,17 @@ const INITIAL_APPLICATIONS: LeaseApplicationItem[] = [
   {
     id: 'app-1002',
     propertyId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    propertyTitle: 'Apartamento Exterior en Chicó Norte con Terraza Privada',
-    propertyCity: 'Bogotá D.C.',
-    monthlyRentCop: 4200000,
+    propertyTitle: 'Apartamento Exterior en Balmoral con Terraza y Vista a los Cerros',
+    propertyCity: 'Fusagasugá',
+    monthlyRentCop: 1450000,
     applicantId: '22222222-2222-4222-8222-222222222222',
     applicantName: 'Valentina Restrepo Jaramillo',
     applicantDocument: 'CC 1020765432',
-    declaredMonthlyIncomeCop: 14500000,
+    declaredMonthlyIncomeCop: 4500000,
     employmentType: 'empleado',
-    employerName: 'Bancolombia S.A.',
+    employerName: 'Alcaldía de Fusagasugá',
     coSignerFullName: 'Mauricio Restrepo Cano',
-    coSignerIncomeCop: 18200000,
+    coSignerIncomeCop: 6200000,
     riskScore: 840,
     status: 'in_study',
     createdAt: '2026-11-05',
@@ -240,24 +243,27 @@ const INITIAL_APPLICATIONS: LeaseApplicationItem[] = [
 const INITIAL_CONTRACTS: ContractItem[] = [
   {
     id: 'cnt-2001',
-    contractNumber: 'CNT-COL-2026-89A4F1',
+    contractNumber: 'CNT-FUSA-2026-89A4F1',
     propertyId: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-    propertyTitle: 'Apartamento Panorámico en El Poblado - Sector Provenza',
+    propertyTitle: 'Apartamento Panorámico en Fusagasugá Centro - Edificio Mirador',
     landlordId: '11111111-1111-4111-8111-111111111111',
     landlordName: 'Carlos Eduardo Gómez Restrepo',
     tenantId: '22222222-2222-4222-8222-222222222222',
     tenantName: 'Valentina Restrepo Jaramillo',
-    startDate: '2026-12-01',
-    endDate: '2027-11-30',
+    startDate: '2026-11-01',
+    endDate: '2027-10-31',
     durationMonths: 12,
-    agreedMonthlyRentCop: 3850000,
-    agreedAdminFeeCop: 520000,
+    agreedMonthlyRentCop: 1200000,
+    agreedAdminFeeCop: 120000,
     annualIpcAdjustmentCapPct: 4.45,
     securityDepositCop: 0,
-    status: 'partially_signed',
+    status: 'active',
     documentContentSha256:
       'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    landlordSignedAt: '2026-11-06T14:20:00Z',
+    landlordSignedAt: '2026-11-01T10:00:00Z',
+    tenantSignedAt: '2026-11-01T11:30:00Z',
+    finalSealedSha256:
+      '8f4b2359f429653199d7a22ef7a6ae8c33ec702e5c8e9b418a0a80eb9a02ec94',
   },
 ];
 
@@ -265,16 +271,16 @@ const INITIAL_PAYMENTS: PaymentItem[] = [
   {
     id: 'pay-3001',
     contractId: 'cnt-2001',
-    contractNumber: 'CNT-COL-2026-89A4F1',
-    propertyTitle: 'Apartamento Panorámico en El Poblado - Sector Provenza',
+    contractNumber: 'CNT-FUSA-2026-89A4F1',
+    propertyTitle: 'Apartamento Panorámico en Fusagasugá Centro - Edificio Mirador',
     tenantId: '22222222-2222-4222-8222-222222222222',
     tenantName: 'Valentina Restrepo Jaramillo',
     landlordId: '11111111-1111-4111-8111-111111111111',
     billingPeriod: 'Noviembre 2026',
     dueDate: '2026-11-05',
-    rentAmountCop: 3850000,
-    adminFeeCop: 520000,
-    totalAmountCop: 4370000,
+    rentAmountCop: 1200000,
+    adminFeeCop: 120000,
+    totalAmountCop: 1320000,
     status: 'paid',
     paymentMethod: 'pse',
     gatewayReference: 'WOMPI-PSE-9948120',
@@ -283,16 +289,16 @@ const INITIAL_PAYMENTS: PaymentItem[] = [
   {
     id: 'pay-3002',
     contractId: 'cnt-2001',
-    contractNumber: 'CNT-COL-2026-89A4F1',
-    propertyTitle: 'Apartamento Panorámico en El Poblado - Sector Provenza',
+    contractNumber: 'CNT-FUSA-2026-89A4F1',
+    propertyTitle: 'Apartamento Panorámico en Fusagasugá Centro - Edificio Mirador',
     tenantId: '22222222-2222-4222-8222-222222222222',
     tenantName: 'Valentina Restrepo Jaramillo',
     landlordId: '11111111-1111-4111-8111-111111111111',
-    billingPeriod: 'Diciembre 2026',
+    billingPeriod: 'Diciembre 2026 (Cuota Pendiente)',
     dueDate: '2026-12-05',
-    rentAmountCop: 3850000,
-    adminFeeCop: 520000,
-    totalAmountCop: 4370000,
+    rentAmountCop: 1200000,
+    adminFeeCop: 120000,
+    totalAmountCop: 1320000,
     status: 'pending',
     gatewayReference: 'WOMPI-PSE-9948999',
   },
@@ -302,16 +308,16 @@ const INITIAL_PQRS: PqrsClaimItem[] = [
   {
     id: 'pqrs-4001',
     radicadoNumber: 'SIC-PQRS-2026-481920',
-    propertyTitle: 'Apartamento Panorámico en El Poblado - Sector Provenza',
+    propertyTitle: 'Apartamento Panorámico en Fusagasugá Centro - Edificio Mirador',
     claimantId: '22222222-2222-4222-8222-222222222222',
     claimantName: 'Valentina Restrepo Jaramillo',
     claimType: 'reparacion_necesaria',
-    subject: 'Revisión de presión hidráulica en calentador de paso',
+    subject: 'Revisión técnica de grifería y presión de agua en baño',
     description:
       'Se solicita revisión técnica preventiva conforme al Art. 1985 del Código Civil y Art. 8 de la Ley 820 de 2003.',
     status: 'in_progress',
     legalDeadlineDate: '2026-11-27',
-    resolutionNotes: 'Técnico asignado por la agencia para visita el lunes a las 9:00 AM.',
+    resolutionNotes: 'Fontanero certificado asignado por la administración para el jueves 10 AM.',
     createdAt: '2026-11-05',
   },
 ];
@@ -327,13 +333,20 @@ interface PropTechContextValue {
   toggleTheme: () => void;
   currentUser: AuthenticatedUser;
   loginAsRole: (role: UserRoleType, customName?: string, customEmail?: string) => void;
+  loginWithCredentials: (
+    email: string,
+    password: string
+  ) => { success: boolean; role?: UserRoleType; error?: string };
+  logout: () => void;
   properties: ManagedProperty[];
   applications: LeaseApplicationItem[];
   contracts: ContractItem[];
   payments: PaymentItem[];
   pqrsClaims: PqrsClaimItem[];
   // CRUD Inmuebles
-  createProperty: (newProp: Omit<ManagedProperty, 'id' | 'slug' | 'ownerId' | 'ownerName' | 'isLey820Compliant'>) => ManagedProperty;
+  createProperty: (
+    newProp: Omit<ManagedProperty, 'id' | 'slug' | 'ownerId' | 'ownerName' | 'isLey820Compliant'>
+  ) => ManagedProperty;
   updateProperty: (id: string, updates: Partial<ManagedProperty>) => void;
   deleteProperty: (id: string) => void;
   // CRUD Postulaciones
@@ -367,11 +380,11 @@ interface PropTechContextValue {
 
 const PropTechContext = createContext<PropTechContextValue | undefined>(undefined);
 
-const STORAGE_KEY = 'proptech_colombia_state_v1';
+const STORAGE_KEY = 'proptech_colombia_sumapaz_v2';
 
 export function PropTechProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<ThemeMode>('light');
-  const [currentUser, setCurrentUser] = useState<AuthenticatedUser>(DEMO_ROLE_USERS.landlord);
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser>(DEMO_ROLE_USERS.tenant);
   const [properties, setProperties] = useState<ManagedProperty[]>(INITIAL_MANAGED_PROPERTIES);
   const [applications, setApplications] = useState<LeaseApplicationItem[]>(INITIAL_APPLICATIONS);
   const [contracts, setContracts] = useState<ContractItem[]>(INITIAL_CONTRACTS);
@@ -450,6 +463,67 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const loginWithCredentials = (email: string, password: string) => {
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanPass = password.trim();
+
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, error: 'Por favor ingresa correo electrónico y contraseña.' };
+    }
+
+    let detectedRole: UserRoleType | null = null;
+
+    if (
+      cleanEmail.includes('admin') ||
+      cleanEmail.includes('secretario') ||
+      cleanEmail.includes('auditoria') ||
+      cleanPass.toLowerCase().includes('admin')
+    ) {
+      detectedRole = 'agent';
+    } else if (
+      cleanEmail.includes('prop') ||
+      cleanEmail.includes('arrendador') ||
+      cleanEmail.includes('carlos') ||
+      cleanPass.toLowerCase().includes('prop')
+    ) {
+      detectedRole = 'landlord';
+    } else if (
+      cleanEmail.includes('arrendatario') ||
+      cleanEmail.includes('inquilino') ||
+      cleanEmail.includes('valentina') ||
+      cleanPass.toLowerCase().includes('inq') ||
+      cleanPass.toLowerCase().includes('arren')
+    ) {
+      detectedRole = 'tenant';
+    } else {
+      // Búsqueda en credenciales registradas
+      for (const [r, u] of Object.entries(DEMO_ROLE_USERS)) {
+        if (
+          u.email.toLowerCase() === cleanEmail ||
+          u.alternativeEmails.some((alt) => alt.toLowerCase() === cleanEmail)
+        ) {
+          detectedRole = r as UserRoleType;
+          break;
+        }
+      }
+    }
+
+    // Por defecto, si no coincide ninguna regla, asignamos tenant
+    const roleToAssign: UserRoleType = detectedRole ?? 'tenant';
+    const baseUser = DEMO_ROLE_USERS[roleToAssign];
+
+    setCurrentUser({
+      ...baseUser,
+      email: cleanEmail,
+    });
+
+    return { success: true, role: roleToAssign };
+  };
+
+  const logout = () => {
+    setCurrentUser(DEMO_ROLE_USERS.tenant);
+  };
+
   // --- CRUD INMUEBLES ---
   const createProperty: PropTechContextValue['createProperty'] = (newProp) => {
     const id = `prop-${Date.now()}`;
@@ -520,42 +594,40 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
     status,
     riskScore
   ) => {
-    const targetApp = applications.find((a) => a.id === id);
     setApplications((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status,
-              riskScore: typeof riskScore === 'number' ? riskScore : item.riskScore,
-            }
-          : item
-      )
+      prev.map((item) => {
+        if (item.id !== id) return item;
+        return {
+          ...item,
+          status,
+          riskScore: riskScore ?? item.riskScore,
+        };
+      })
     );
 
-    // Si se aprueba la postulación y no existe contrato aún, generar borrador de contrato automáticamente
-    if (status === 'approved' && targetApp) {
-      const exists = contracts.some((c) => c.propertyId === targetApp.propertyId);
-      if (!exists) {
+    // Si se aprueba, generar contrato automáticamente
+    if (status === 'approved') {
+      const app = applications.find((a) => a.id === id);
+      if (app) {
         const newContract: ContractItem = {
           id: `cnt-${Date.now().toString().slice(-5)}`,
-          contractNumber: `CNT-COL-2026-${Math.floor(100000 + Math.random() * 900000)}`,
-          propertyId: targetApp.propertyId,
-          propertyTitle: targetApp.propertyTitle,
-          landlordId: '11111111-1111-4111-8111-111111111111',
-          landlordName: 'Carlos Eduardo Gómez Restrepo',
-          tenantId: targetApp.applicantId,
-          tenantName: targetApp.applicantName,
+          contractNumber: `CNT-FUSA-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+          propertyId: app.propertyId,
+          propertyTitle: app.propertyTitle,
+          landlordId: currentUser.id,
+          landlordName: currentUser.fullName,
+          tenantId: app.applicantId,
+          tenantName: app.applicantName,
           startDate: '2026-12-01',
           endDate: '2027-11-30',
           durationMonths: 12,
-          agreedMonthlyRentCop: targetApp.monthlyRentCop,
-          agreedAdminFeeCop: 350000,
+          agreedMonthlyRentCop: app.monthlyRentCop,
+          agreedAdminFeeCop: Math.round(app.monthlyRentCop * 0.1),
           annualIpcAdjustmentCapPct: 4.45,
           securityDepositCop: 0,
           status: 'pending_signatures',
           documentContentSha256:
-            'a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e',
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
         };
         setContracts((prev) => [newContract, ...prev]);
       }
@@ -567,27 +639,20 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
   };
 
   // --- CRUD CONTRATOS Y PAGOS ---
-  const signContractByRole: PropTechContextValue['signContractByRole'] = (
-    contractId,
-    role
-  ) => {
+  const signContractByRole: PropTechContextValue['signContractByRole'] = (contractId, role) => {
     const nowIso = new Date().toISOString();
     setContracts((prev) =>
-      prev.map((cnt) => {
-        if (cnt.id !== contractId) return cnt;
-        const updated = { ...cnt };
-        if (role === 'landlord') {
-          updated.landlordSignedAt = nowIso;
-        } else {
-          updated.tenantSignedAt = nowIso;
-        }
+      prev.map((c) => {
+        if (c.id !== contractId) return c;
+        const updated = { ...c };
+        if (role === 'landlord') updated.landlordSignedAt = nowIso;
+        if (role === 'tenant') updated.tenantSignedAt = nowIso;
 
         if (updated.landlordSignedAt && updated.tenantSignedAt) {
           updated.status = 'active';
-          updated.finalSealedSha256 =
-            '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069';
-          // Marcar propiedad como arrendada
-          updateProperty(cnt.propertyId, { status: 'rented' });
+          updated.finalSealedSha256 = `sealed-${Math.random().toString(36).substring(2, 15)}-sha256`;
+          // Poner inmueble como arrendado
+          updateProperty(c.propertyId, { status: 'rented' });
         } else {
           updated.status = 'partially_signed';
         }
@@ -598,26 +663,27 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
 
   const payMonthlyCanon: PropTechContextValue['payMonthlyCanon'] = (paymentId, method) => {
     setPayments((prev) =>
-      prev.map((pay) =>
-        pay.id === paymentId
-          ? {
-              ...pay,
-              status: 'paid',
-              paymentMethod: method,
-              paidAt: new Date().toISOString(),
-            }
-          : pay
-      )
+      prev.map((p) => {
+        if (p.id !== paymentId) return p;
+        return {
+          ...p,
+          status: 'paid',
+          paymentMethod: method,
+          paidAt: new Date().toISOString(),
+          gatewayReference: `WOMPI-${method.toUpperCase()}-${Math.floor(1000000 + Math.random() * 9000000)}`,
+        };
+      })
     );
   };
 
   // --- CRUD PQRS ---
   const createPqrs: PropTechContextValue['createPqrs'] = (input) => {
     const deadline = new Date();
-    deadline.setDate(deadline.getDate() + 21);
+    deadline.setDate(deadline.getDate() + 21); // 15 días hábiles aprox 21 calendario
+
     const newClaim: PqrsClaimItem = {
       id: `pqrs-${Date.now().toString().slice(-5)}`,
-      radicadoNumber: `SIC-PQRS-2026-${Math.floor(100000 + Math.random() * 900000)}`,
+      radicadoNumber: `SIC-FUSA-2026-${Math.floor(100000 + Math.random() * 900000)}`,
       propertyTitle: input.propertyTitle,
       claimantId: currentUser.id,
       claimantName: currentUser.fullName,
@@ -628,6 +694,7 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
       legalDeadlineDate: deadline.toISOString().split('T')[0],
       createdAt: new Date().toISOString().split('T')[0],
     };
+
     setPqrsClaims((prev) => [newClaim, ...prev]);
   };
 
@@ -660,6 +727,8 @@ export function PropTechProvider({ children }: { children: React.ReactNode }) {
         toggleTheme,
         currentUser,
         loginAsRole,
+        loginWithCredentials,
+        logout,
         properties,
         applications,
         contracts,

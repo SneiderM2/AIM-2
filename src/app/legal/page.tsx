@@ -7,6 +7,7 @@
  */
 
 import React, { useState, useTransition } from 'react';
+import Link from 'next/link';
 import {
   CheckCircle2,
   ClipboardCheck,
@@ -15,6 +16,7 @@ import {
   Scale,
   ShieldAlert,
 } from 'lucide-react';
+import { usePropTech } from '../../context/PropTechContext';
 import {
   createPqrsClaimAction,
   registerHabeasDataConsentAction,
@@ -27,7 +29,39 @@ const POLICY_SHA256_HASH =
   '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08';
 
 export default function LegalAndPqrsPage() {
+  const { currentUser } = usePropTech();
   const [isPending, startTransition] = useTransition();
+
+  // Control de Acceso: Exclusivo Administrador / Secretario
+  if (currentUser.role !== 'agent') {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+          <Lock className="h-7 w-7" />
+        </div>
+        <h1 className="mt-4 text-2xl font-extrabold text-slate-900 dark:text-white">
+          Módulo Reservado para el Administrador
+        </h1>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          La inspección de consentimientos Habeas Data (Ley 1581) y trazabilidad procesal de 15 días hábiles ante la SIC está reservada para el Administrador / Lonja Inmobiliaria. Para radicar o consultar tus PQRS particulares, dirígete a tu panel principal.
+        </p>
+        <div className="mt-6 flex justify-center gap-3">
+          <Link
+            href="/panel"
+            className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-emerald-700"
+          >
+            Ir a Mi Panel
+          </Link>
+          <Link
+            href="/login"
+            className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          >
+            Iniciar Sesión como Administrador
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Estado RF-01: Habeas Data (Ley 1581 de 2012)
   const [documentType, setDocumentType] = useState<'CC' | 'CE' | 'NIT'>('CC');

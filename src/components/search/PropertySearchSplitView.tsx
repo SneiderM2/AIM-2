@@ -85,15 +85,14 @@ export interface PropertySearchSplitViewProps {
 }
 
 const COLOMBIAN_CITIES = [
-  'Bogotá D.C.',
-  'Medellín',
-  'Cali',
-  'Barranquilla',
-  'Cartagena',
-  'Bucaramanga',
-  'Pereira',
-  'Envigado',
-  'Chía',
+  'Fusagasugá',
+  'Silvania',
+  'Arbeláez',
+  'Pasca',
+  'Granada',
+  'Pandi',
+  'Tibacuy',
+  'San Bernardo',
 ] as const;
 
 const ESTRATO_LEVELS = [1, 2, 3, 4, 5, 6] as const;
@@ -252,8 +251,8 @@ export function PropertySearchSplitView({
                       { history: 'replace' }
                     )
                   }
-                  placeholder="Barrio, sector o código..."
-                  aria-label="Buscar por barrio, sector o palabra clave"
+                  placeholder="Barrio o sector en Sumapaz (Balmoral, Centro, Chinauta)..."
+                  aria-label="Buscar por barrio, sector o palabra clave en Sumapaz"
                   className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
                 />
               </div>
@@ -266,7 +265,7 @@ export function PropertySearchSplitView({
                 aria-label="Filtrar por ciudad en Colombia"
                 className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
               >
-                <option value="">Todas las ciudades</option>
+                <option value="">Municipios Sumapaz (Todos)</option>
                 {availableCities.map((cityName) => (
                   <option key={cityName} value={cityName}>
                     {cityName}
@@ -611,21 +610,21 @@ export function PropertySearchSplitView({
               mobileViewMode === 'list' ? 'hidden lg:block' : 'block'
             }`}
           >
-            <div className="sticky top-[5.25rem] h-[calc(100vh-6.5rem)] w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-inner">
-              <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between rounded-xl border border-slate-200/80 bg-white/95 px-3.5 py-2 shadow-md backdrop-blur-md">
+            <div className="sticky top-[5.25rem] h-[calc(100vh-6.5rem)] w-full overflow-hidden rounded-2xl border border-slate-300 bg-slate-100 shadow-inner dark:border-slate-800 dark:bg-slate-900">
+              <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 shadow-md backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/95">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  <span className="text-xs font-bold text-slate-800">
-                    PostGIS EPSG:4326 • {filteredProperties.length} pines activos
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                    PostGIS EPSG:4326 • {filteredProperties.length} pines en Sumapaz
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700">
+                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Sincronizado con CRUD
                 </span>
               </div>
 
-              <div className="relative flex h-full w-full flex-col justify-between bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px] p-6 pt-20">
+              <div className="relative flex h-full w-full flex-col justify-between bg-[radial-gradient(#94a3b8_1px,transparent_1px)] [background-size:20px_20px] p-6 pt-20 dark:bg-[radial-gradient(#334155_1px,transparent_1px)]">
                 <div className="flex flex-wrap content-start gap-2.5 overflow-y-auto pr-1">
                   {filteredProperties.map((property) => {
                     const isPinActive =
@@ -645,13 +644,13 @@ export function PropertySearchSplitView({
                         onMouseLeave={() => setHoveredPropertyId(null)}
                         className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
                           isPinActive
-                            ? 'scale-110 bg-emerald-500 text-slate-950 ring-4 ring-emerald-400/40 shadow-lg'
-                            : 'bg-white text-slate-900 shadow hover:bg-emerald-50'
+                            ? 'scale-110 bg-emerald-600 text-white ring-4 ring-emerald-400/40 shadow-lg dark:bg-emerald-500 dark:text-slate-950'
+                            : 'border border-slate-300 bg-white text-slate-900 shadow hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700'
                         }`}
                       >
-                        <MapPin className="h-3.5 w-3.5" />
+                        <MapPin className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>{copFormatter.format(property.monthlyRentCop)}</span>
-                        <span className="rounded bg-slate-900/10 px-1.5 py-0.5 text-[10px]">
+                        <span className="rounded bg-slate-200 px-1.5 py-0.5 text-[10px] text-slate-700 dark:bg-slate-700 dark:text-slate-200">
                           E{property.estrato}
                         </span>
                       </button>
