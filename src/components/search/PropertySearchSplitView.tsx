@@ -116,6 +116,7 @@ export function PropertySearchSplitView({
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string | null>(null);
   const [selectedMapPropertyId, setSelectedMapPropertyId] = useState<string | null>(null);
   const [mobileViewMode, setMobileViewMode] = useState<'list' | 'map'>('list');
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [appliedPropertyToast, setAppliedPropertyToast] = useState<string | null>(null);
 
   // Sincronización bidireccional en tiempo real con la URL del navegador usando `nuqs`
@@ -222,25 +223,51 @@ export function PropertySearchSplitView({
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Notificación flotante al postularse */}
+      {/* Notificación flotante al postularse (offset para no tapar barra móvil) */}
       {appliedPropertyToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-emerald-400 bg-slate-900 px-5 py-4 text-xs font-bold text-white shadow-2xl">
-          <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-          <div>
-            <p>¡Postulación radicada para: {appliedPropertyToast}!</p>
+        <aside
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-20 left-3 right-3 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-emerald-400 bg-slate-900 px-4 py-3.5 text-xs font-bold text-white shadow-2xl sm:bottom-6 sm:left-auto sm:right-6"
+        >
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate">¡Postulación radicada para: {appliedPropertyToast}!</p>
             <Link href="/panel" className="text-emerald-400 underline">
               Ver estado y aprobar en el Panel CRUD &rarr;
             </Link>
           </div>
-        </div>
+        </aside>
       )}
 
+      {/* Botón flotante móvil para alternar Lista / Mapa */}
+      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-30 lg:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileViewMode(mobileViewMode === 'list' ? 'map' : 'list')}
+          className="inline-flex items-center gap-2 rounded-full bg-[#1B365D] px-5 py-2.5 text-xs font-black text-white shadow-2xl ring-2 ring-[#11CAA0]/60 active:scale-95 transition-transform"
+        >
+          {mobileViewMode === 'list' ? (
+            <>
+              <MapIcon className="h-4 w-4 text-[#11CAA0]" />
+              <span>Ver Mapa ({filteredProperties.length})</span>
+            </>
+          ) : (
+            <>
+              <LayoutGrid className="h-4 w-4 text-[#11CAA0]" />
+              <span>Ver Lista ({filteredProperties.length})</span>
+            </>
+          )}
+        </button>
+      </div>
+
       {/* BARRA SUPERIOR STICKY DE FILTROS MULTIDIMENSIONALES */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto max-w-[1600px] px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex flex-1 flex-wrap items-center gap-2.5">
-              <div className="relative min-w-[220px] flex-1 sm:max-w-xs">
+      <header className="sticky top-[53px] sm:top-[57px] z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95">
+        <div className="mx-auto max-w-[1600px] px-3 py-2.5 sm:px-6 sm:py-3 lg:px-8">
+          {/* Fila principal en móvil y escritorio */}
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1 sm:w-72 lg:w-80">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="search"
@@ -251,128 +278,153 @@ export function PropertySearchSplitView({
                       { history: 'replace' }
                     )
                   }
-                  placeholder="Barrio o sector en Sumapaz (Balmoral, Centro, Chinauta)..."
+                  placeholder="Barrio o sector en Sumapaz (Balmoral, Centro)..."
                   aria-label="Buscar por barrio, sector o palabra clave en Sumapaz"
-                  className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
+                  className="h-9 sm:h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                 />
               </div>
 
-              <select
-                value={filters.city}
-                onChange={(e) =>
-                  void setFilters({ city: e.target.value || null, page: 1 })
-                }
-                aria-label="Filtrar por ciudad en Colombia"
-                className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
+              {/* Botón Filtros Avanzados para Móvil / Tablet */}
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                className={`inline-flex h-9 sm:h-10 items-center gap-1.5 rounded-xl border px-3 text-xs font-bold transition lg:hidden ${
+                  activeFiltersCount > 0 || isMobileFiltersOpen
+                    ? 'border-[#00805A] bg-[#00805A]/10 text-[#00805A] dark:border-[#11CAA0] dark:text-[#11CAA0]'
+                    : 'border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200'
+                }`}
               >
-                <option value="">Municipios Sumapaz (Todos)</option>
-                {availableCities.map((cityName) => (
-                  <option key={cityName} value={cityName}>
-                    {cityName}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={filters.type ?? ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  void setFilters({
-                    type: val ? (val as (typeof PROPERTY_TYPES)[number]) : null,
-                    page: 1,
-                  });
-                }}
-                aria-label="Filtrar por tipo de inmueble"
-                className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-600/20"
-              >
-                <option value="">Tipo de inmueble</option>
-                <option value="apartamento">Apartamento</option>
-                <option value="casa">Casa</option>
-                <option value="apartaestudio">Apartaestudio</option>
-                <option value="local_comercial">Local Comercial</option>
-                <option value="oficina">Oficina</option>
-                <option value="bodega">Bodega</option>
-              </select>
-
-              <div className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Canon (COP):
-                </span>
-                <input
-                  type="number"
-                  step={100000}
-                  min={0}
-                  value={filters.minPrice ?? ''}
-                  onChange={(e) => {
-                    const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
-                    void setFilters({ minPrice: parsed, page: 1 }, { history: 'replace' });
-                  }}
-                  placeholder="Mín $"
-                  aria-label="Canon mínimo en pesos colombianos"
-                  className="h-8 w-28 rounded border border-slate-200 bg-white px-2 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-                <span className="text-slate-400">-</span>
-                <input
-                  type="number"
-                  step={100000}
-                  min={0}
-                  value={filters.maxPrice ?? ''}
-                  onChange={(e) => {
-                    const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
-                    void setFilters({ maxPrice: parsed, page: 1 }, { history: 'replace' });
-                  }}
-                  placeholder="Máx $"
-                  aria-label="Canon máximo en pesos colombianos"
-                  className="h-8 w-28 rounded border border-slate-200 bg-white px-2 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none"
-                />
-              </div>
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                <span>Filtros</span>
+                {activeFiltersCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#00805A] text-[10px] font-black text-white dark:bg-[#11CAA0] dark:text-[#1B365D]">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="group"
-                aria-label="Filtrar por estrato socioeconómico"
-                className="flex items-center gap-1 rounded-lg border border-slate-200 bg-slate-100 p-1"
-              >
-                <span className="px-2 text-xs font-semibold text-slate-600">Estrato:</span>
-                {ESTRATO_LEVELS.map((lvl) => {
-                  const isSelected = filters.estratos.includes(lvl);
-                  return (
-                    <button
-                      key={lvl}
-                      type="button"
-                      onClick={() => handleToggleEstrato(lvl)}
-                      aria-pressed={isSelected}
-                      className={`h-7 w-7 rounded-md text-xs font-bold transition-all ${
-                        isSelected
-                          ? 'bg-emerald-600 text-white shadow-sm'
-                          : 'bg-white text-slate-700 hover:bg-slate-200'
-                      }`}
-                    >
-                      {lvl}
-                    </button>
-                  );
-                })}
+            {/* Contenedor de Filtros (Expandible en móvil, inline en escritorio) */}
+            <div
+              className={`flex-col gap-2.5 pt-1 lg:flex lg:flex-row lg:items-center lg:pt-0 ${
+                isMobileFiltersOpen ? 'flex' : 'hidden lg:flex'
+              }`}
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={filters.city}
+                  onChange={(e) =>
+                    void setFilters({ city: e.target.value || null, page: 1 })
+                  }
+                  aria-label="Filtrar por ciudad en Colombia"
+                  className="h-9 rounded-xl border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <option value="">Municipios (Todos)</option>
+                  {availableCities.map((cityName) => (
+                    <option key={cityName} value={cityName}>
+                      {cityName}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.type ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    void setFilters({
+                      type: val ? (val as (typeof PROPERTY_TYPES)[number]) : null,
+                      page: 1,
+                    });
+                  }}
+                  aria-label="Filtrar por tipo de inmueble"
+                  className="h-9 rounded-xl border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700 focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <option value="">Tipo de inmueble</option>
+                  <option value="apartamento">Apartamento</option>
+                  <option value="casa">Casa</option>
+                  <option value="apartaestudio">Apartaestudio</option>
+                  <option value="local_comercial">Local Comercial</option>
+                  <option value="oficina">Oficina</option>
+                  <option value="bodega">Bodega</option>
+                </select>
+
+                <div className="flex items-center gap-1.5 rounded-xl border border-slate-300 bg-slate-50 px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-800">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Canon:
+                  </span>
+                  <input
+                    type="number"
+                    step={100000}
+                    min={0}
+                    value={filters.minPrice ?? ''}
+                    onChange={(e) => {
+                      const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
+                      void setFilters({ minPrice: parsed, page: 1 }, { history: 'replace' });
+                    }}
+                    placeholder="Mín $"
+                    aria-label="Canon mínimo en pesos colombianos"
+                    className="h-7 w-20 sm:w-24 rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                  <span className="text-slate-400">-</span>
+                  <input
+                    type="number"
+                    step={100000}
+                    min={0}
+                    value={filters.maxPrice ?? ''}
+                    onChange={(e) => {
+                      const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
+                      void setFilters({ maxPrice: parsed, page: 1 }, { history: 'replace' });
+                    }}
+                    placeholder="Máx $"
+                    aria-label="Canon máximo en pesos colombianos"
+                    className="h-7 w-20 sm:w-24 rounded border border-slate-200 bg-white px-1.5 text-xs text-slate-800 focus:border-emerald-600 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
               </div>
 
-              <select
-                value={filters.bedrooms ?? ''}
-                onChange={(e) => {
-                  const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
-                  void setFilters({ bedrooms: parsed, page: 1 });
-                }}
-                aria-label="Habitaciones mínimas"
-                className="h-9 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700"
-              >
-                <option value="">Hab. (Todas)</option>
-                <option value="1">1+ Hab.</option>
-                <option value="2">2+ Hab.</option>
-                <option value="3">3+ Hab.</option>
-                <option value="4">4+ Hab.</option>
-              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <div
+                  role="group"
+                  aria-label="Filtrar por estrato socioeconómico"
+                  className="flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-100 p-1 dark:border-slate-700 dark:bg-slate-800"
+                >
+                  <span className="px-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">Estrato:</span>
+                  {ESTRATO_LEVELS.map((lvl) => {
+                    const isSelected = filters.estratos.includes(lvl);
+                    return (
+                      <button
+                        key={lvl}
+                        type="button"
+                        onClick={() => handleToggleEstrato(lvl)}
+                        aria-pressed={isSelected}
+                        className={`h-6 w-6 rounded-md text-[11px] font-bold transition-all ${
+                          isSelected
+                            ? 'bg-[#00805A] text-white shadow-sm dark:bg-[#11CAA0] dark:text-[#1B365D]'
+                            : 'bg-white text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200'
+                        }`}
+                      >
+                        {lvl}
+                      </button>
+                    );
+                  })}
+                </div>
 
-              <div className="flex items-center gap-1.5">
-                <SlidersHorizontal className="h-4 w-4 text-slate-500" />
+                <select
+                  value={filters.bedrooms ?? ''}
+                  onChange={(e) => {
+                    const parsed = e.target.value ? parseInt(e.target.value, 10) : null;
+                    void setFilters({ bedrooms: parsed, page: 1 });
+                  }}
+                  aria-label="Habitaciones mínimas"
+                  className="h-9 rounded-xl border border-slate-300 bg-white px-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  <option value="">Habitaciones</option>
+                  <option value="1">1+ Hab.</option>
+                  <option value="2">2+ Hab.</option>
+                  <option value="3">3+ Hab.</option>
+                  <option value="4">4+ Hab.</option>
+                </select>
+
                 <select
                   value={filters.sortBy}
                   onChange={(e) =>
@@ -382,25 +434,25 @@ export function PropertySearchSplitView({
                     })
                   }
                   aria-label="Ordenar resultados"
-                  className="h-9 rounded-lg border border-slate-300 bg-white px-2.5 text-xs font-medium text-slate-700"
+                  className="h-9 rounded-xl border border-slate-300 bg-white px-2 text-xs font-medium text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
                 >
                   <option value="recent">Más recientes</option>
                   <option value="price_asc">Canon: menor a mayor</option>
                   <option value="price_desc">Canon: mayor a menor</option>
                   <option value="area_desc">Mayor área privada</option>
                 </select>
-              </div>
 
-              {activeFiltersCount > 0 && (
-                <button
-                  type="button"
-                  onClick={handleResetAllFilters}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-rose-200 bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-100"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  Limpiar ({activeFiltersCount})
-                </button>
-              )}
+                {activeFiltersCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleResetAllFilters}
+                    className="inline-flex h-9 items-center gap-1 rounded-xl border border-rose-200 bg-rose-50 px-2.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                    Limpiar ({activeFiltersCount})
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -701,36 +753,36 @@ export function PropertySearchSplitView({
                       );
                       if (!selected) return null;
                       return (
-                        <div className="flex items-center justify-between gap-4">
-                          <div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="min-w-0 flex-1">
                             <span className="text-[11px] font-bold uppercase text-emerald-700">
                               {selected.neighborhood} • Estrato {selected.estrato}
                             </span>
-                            <h3 className="text-sm font-bold text-slate-900">
+                            <h3 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
                               {selected.title}
                             </h3>
-                            <p className="mt-0.5 text-sm font-extrabold text-slate-900">
+                            <p className="mt-0.5 text-xs sm:text-sm font-extrabold text-slate-900">
                               {copFormatter.format(selected.monthlyRentCop)}{' '}
-                              <span className="text-xs font-normal text-slate-500">
+                              <span className="text-[11px] font-normal text-slate-500">
                                 ({selected.privateAreaM2} m² • {selected.bedrooms} Hab.)
                               </span>
                             </p>
-                            <p className="mt-0.5 font-mono text-[11px] text-slate-400">
+                            <p className="mt-0.5 font-mono text-[10px] text-slate-400">
                               Coords: {selected.latitude.toFixed(4)}, {selected.longitude.toFixed(4)}
                             </p>
                           </div>
-                          <div className="flex gap-1.5">
+                          <div className="flex shrink-0 items-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleQuickApply(selected)}
-                              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                              className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700"
                             >
                               Postularme
                             </button>
                             <button
                               type="button"
                               onClick={() => setSelectedMapPropertyId(null)}
-                              className="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-200"
+                              className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200"
                             >
                               Cerrar
                             </button>

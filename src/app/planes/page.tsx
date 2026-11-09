@@ -141,13 +141,17 @@ export default function SaasPlansAndBrandPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 space-y-14">
+    <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-10 lg:px-8 space-y-10 sm:space-y-14">
       {/* Notificación flotante */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border border-[#11CAA0] bg-[#1B365D] px-5 py-4 text-xs font-bold text-white shadow-2xl">
-          <CheckCircle2 className="h-5 w-5 text-[#11CAA0]" />
-          <span>{toastMessage}</span>
-        </div>
+        <aside
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-20 left-3 right-3 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-[#11CAA0] bg-[#1B365D] px-4 py-3.5 text-xs font-bold text-white shadow-2xl sm:bottom-6 sm:left-auto sm:right-6"
+        >
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-[#11CAA0]" />
+          <span className="flex-1">{toastMessage}</span>
+        </aside>
       )}
 
       {/* =====================================================================

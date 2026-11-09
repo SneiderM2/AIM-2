@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sgiBg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#005088" />
+      <stop offset="100%" stop-color="#1B365D" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+  <!-- Background Canvas -->
+  <rect width="512" height="512" rx="112" fill="url(#sgiBg)"/>
+  <g filter="url(#shadow)">
+    <!-- 1. Escudo Protector Exterior -->
+    <path
+      d="M256 70 L110 135 V245 C110 350 180 432 256 455 C332 432 402 350 402 245 V135 L256 70 Z"
+      stroke="#11CAA0"
+      stroke-width="26"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="rgba(0, 128, 90, 0.22)"
+    />
+    <!-- 2. Estructura Inmobiliaria (Techo y Fachada) -->
+    <path
+      d="M170 250 L256 180 L342 250"
+      stroke="#FFFFFF"
+      stroke-width="24"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M195 240 V345 H317 V240"
+      stroke="#FFFFFF"
+      stroke-width="22"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <!-- 3. Llave Digital Maestra -->
+    <circle cx="256" cy="265" r="28" fill="#11CAA0" />
+    <path
+      d="M256 293 V358 M256 325 H286 M256 350 H280"
+      stroke="#11CAA0"
+      stroke-width="22"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>
