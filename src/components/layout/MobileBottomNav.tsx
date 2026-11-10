@@ -40,7 +40,7 @@ export function MobileBottomNav({ onOpenMobileMenu }: MobileBottomNavProps) {
   return (
     <nav
       aria-label="Navegación inferior móvil"
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden dark:border-slate-800 dark:bg-slate-900/95"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md xl:hidden dark:border-slate-800 dark:bg-slate-900/95"
     >
       <div className="flex h-16 items-center justify-around px-2">
         {/* 1. Buscador */}
@@ -84,18 +84,20 @@ export function MobileBottomNav({ onOpenMobileMenu }: MobileBottomNavProps) {
           <span>{primaryAction.label}</span>
         </Link>
 
-        {/* 4. Planes SaaS */}
-        <Link
-          href="/planes"
-          className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
-            pathname === '/planes'
-              ? 'text-[#005088] dark:text-[#11CAA0]'
-              : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-          }`}
-        >
-          <CreditCard className="h-5 w-5" />
-          <span>Planes</span>
-        </Link>
+        {/* 4. Planes SaaS (oculto si ya es la acción primaria del rol) */}
+        {primaryAction.href !== '/planes' && (
+          <Link
+            href="/planes"
+            className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
+              pathname === '/planes'
+                ? 'text-[#005088] dark:text-[#11CAA0]'
+                : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+            }`}
+          >
+            <CreditCard className="h-5 w-5" />
+            <span>Planes</span>
+          </Link>
+        )}
 
         {/* 5. Menú Completo / Drawer */}
         <button

@@ -58,7 +58,7 @@ export default function RootLayout({
         <PropTechProvider>
           <NuqsAdapter>
             <Navbar />
-            <main className="min-h-[calc(100vh-4rem)] pb-20 lg:pb-6">
+            <main className="min-h-[calc(100vh-4rem)] pb-20 xl:pb-6">
               {children}
             </main>
             <PwaRegistrar />

@@ -6,7 +6,7 @@
  *              conectado en vivo al estado CRUD global (`usePropTech`) y Layout Split-View.
  */
 
-import React, { useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import {
   parseAsArrayOf,
@@ -118,6 +118,28 @@ export function PropertySearchSplitView({
   const [mobileViewMode, setMobileViewMode] = useState<'list' | 'map'>('list');
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [appliedPropertyToast, setAppliedPropertyToast] = useState<string | null>(null);
+  const searchHeaderRef = useRef<HTMLElement | null>(null);
+
+  // Publica la altura real de la barra de filtros para que el mapa sticky
+  // se ubique debajo de las barras fijas y no quede tapado.
+  useEffect(() => {
+    const el = searchHeaderRef.current;
+    if (!el) return;
+    const update = () => {
+      document.documentElement.style.setProperty(
+        '--sgi-searchbar-h',
+        `${Math.round(el.getBoundingClientRect().height)}px`
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
 
   // Sincronización bidireccional en tiempo real con la URL del navegador usando `nuqs`
   const [filters, setFilters] = useQueryStates(propertySearchParsers, {
@@ -262,7 +284,10 @@ export function PropertySearchSplitView({
       </div>
 
       {/* BARRA SUPERIOR STICKY DE FILTROS MULTIDIMENSIONALES */}
-      <header className="sticky top-[53px] sm:top-[57px] z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95">
+      <header
+        ref={searchHeaderRef}
+        className="sgi-search-sticky sticky z-20 border-b border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95"
+      >
         <div className="mx-auto max-w-[1600px] px-3 py-2.5 sm:px-6 sm:py-3 lg:px-8">
           {/* Fila principal en móvil y escritorio */}
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between">
@@ -697,7 +722,7 @@ export function PropertySearchSplitView({
               mobileViewMode === 'list' ? 'hidden lg:block' : 'block'
             }`}
           >
-            <div className="sticky top-[5.25rem] h-[calc(100vh-6.5rem)] w-full overflow-hidden rounded-2xl border border-slate-300 bg-slate-100 shadow-inner dark:border-slate-800 dark:bg-slate-900">
+            <div className="sgi-map-panel sticky w-full overflow-hidden rounded-2xl border border-slate-300 bg-slate-100 shadow-inner dark:border-slate-800 dark:bg-slate-900">
               <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between rounded-xl border border-slate-200 bg-white/95 px-3.5 py-2 shadow-md backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/95">
                 <div className="flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />

@@ -4,7 +4,7 @@
 
 @layer base {
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     -webkit-tap-highlight-color: transparent;
     -webkit-text-size-adjust: 100%;
@@ -13,7 +13,7 @@
 
   body {
     @apply bg-slate-50 text-slate-900 transition-colors duration-200 antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     min-height: 100vh;
     min-height: -webkit-fill-available;
@@ -96,8 +96,41 @@ html.dark tbody tr:hover {
   background-color: #1a2536 !important;
 }
 
-/* Soporte de área segura (Notch y barra inferior de iOS / Android) */
-@supports (padding: env(safe-area-inset-bottom)) {
+/* ============================================================================
+   ALTURAS COORDINADAS DE BARRAS FIJAS
+   Navbar y barra de filtros publican su altura real en estas variables para
+   que el mapa sticky y los encabezados no queden solapados ni recortados.
+   ============================================================================ */
+
+:root {
+  --sgi-navbar-h: 57px;
+  --sgi-searchbar-h: 57px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --sgi-navbar-h: 70px;
+  }
+}
+
+.sgi-search-sticky {
+  top: var(--sgi-navbar-h);
+}
+
+.sgi-map-panel {
+  top: calc(var(--sgi-navbar-h) + var(--sgi-searchbar-h) + 0.75rem);
+  height: calc(100vh - var(--sgi-navbar-h) - var(--sgi-searchbar-h) - 9.5rem);
+  height: calc(100dvh - var(--sgi-navbar-h) - var(--sgi-searchbar-h) - 9.5rem);
+}
+
+@media (min-width: 1280px) {
+  .sgi-map-panel {
+    height: calc(100vh - var(--sgi-navbar-h) - var(--sgi-searchbar-h) - 2rem);
+    height: calc(100dvh - var(--sgi-navbar-h) - var(--sgi-searchbar-h) - 2rem);
+  }
+}
+
+/* Soporte de área segura (Notch y barra inferior de iOS / Android) */@supports (padding: env(safe-area-inset-bottom)) {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }

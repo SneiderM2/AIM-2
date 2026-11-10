@@ -8,7 +8,7 @@
  *              cambiador de rol rápido y soporte PWA.
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -52,6 +52,28 @@ export function Navbar() {
   } = usePropTech();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
+
+  // Publica la altura real de la barra para que los encabezados sticky y el mapa
+  // se posicionen justo debajo (evita que queden tapados al hacer scroll).
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const update = () => {
+      document.documentElement.style.setProperty(
+        '--sgi-navbar-h',
+        `${Math.round(el.getBoundingClientRect().height)}px`
+      );
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
 
   // Cerrar menú móvil al navegar
   useEffect(() => {
@@ -145,7 +167,10 @@ export function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 text-slate-800 shadow-sm backdrop-blur-md transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900/95">
+      <header
+        ref={headerRef}
+        className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 text-slate-800 shadow-sm backdrop-blur-md transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900/95"
+      >
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-2 px-3 py-2.5 sm:px-6 sm:py-3 lg:px-8">
           {/* Identidad Corporativa: SGI */}
           <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -155,11 +180,11 @@ export function Navbar() {
                 <span className="truncate text-sm font-extrabold tracking-tight text-[#1B365D] sm:text-base dark:text-white">
                   SGI • PropTech
                 </span>
-                <span className="rounded-full bg-[#00805A]/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#00805A] sm:text-[10px] dark:bg-[#11CAA0]/20 dark:text-[#11CAA0]">
+                <span className="hidden rounded-full bg-[#00805A]/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#00805A] sm:inline-block sm:text-[10px] dark:bg-[#11CAA0]/20 dark:text-[#11CAA0]">
                   Sumapaz
                 </span>
               </div>
-              <p className="hidden text-[11px] font-medium text-slate-500 md:block">
+              <p className="hidden text-[11px] font-medium text-slate-500 min-[1800px]:block">
                 &ldquo;Control total de tus inmuebles, desde cualquier lugar.&rdquo;
               </p>
             </div>
@@ -168,7 +193,7 @@ export function Navbar() {
           {/* Enlaces de Escritorio (Desktop: lg+) */}
           <nav
             aria-label="Navegación principal"
-            className="hidden items-center gap-1 lg:flex xl:gap-1.5"
+            className="hidden items-center gap-1 xl:flex 2xl:gap-1.5"
           >
             {visibleNavItems.map((item) => {
               const Icon = item.icon;
@@ -184,7 +209,7 @@ export function Navbar() {
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="whitespace-nowrap">{item.label}</span>
+                  <span className="whitespace-nowrap">{item.shortLabel}</span>
                 </Link>
               );
             })}
@@ -197,7 +222,7 @@ export function Navbar() {
               <Link
                 href="/planes"
                 title="Ver plan de suscripción SaaS activo"
-                className="hidden items-center gap-1.5 rounded-xl border border-[#00805A]/30 bg-[#00805A]/10 px-2.5 py-1.5 text-[11px] font-bold text-[#00805A] 2xl:inline-flex dark:border-[#11CAA0]/30 dark:text-[#11CAA0]"
+                className="hidden items-center gap-1.5 whitespace-nowrap rounded-xl border border-[#00805A]/30 bg-[#00805A]/10 px-2.5 py-1.5 text-[11px] font-bold text-[#00805A] min-[1800px]:inline-flex dark:border-[#11CAA0]/30 dark:text-[#11CAA0]"
               >
                 <span>
                   Plan {activeSaasPlan.toUpperCase()}
@@ -236,7 +261,7 @@ export function Navbar() {
             </button>
 
             {/* Insignia del Rol Activo */}
-            <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-xs sm:px-2.5 sm:py-1.5 dark:border-slate-800 dark:bg-slate-800/60">
+            <div className="hidden items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-xs sm:flex sm:px-2.5 sm:py-1.5 dark:border-slate-800 dark:bg-slate-800/60">
               <span
                 className={`h-2 w-2 shrink-0 rounded-full ${
                   currentUser.role === 'agent'
@@ -261,7 +286,7 @@ export function Navbar() {
             </div>
 
             {/* Botón Salir / Login (Desktop) */}
-            <div className="hidden lg:flex items-center">
+            <div className="hidden items-center xl:flex">
               {pathname !== '/login' ? (
                 <button
                   type="button"
@@ -288,7 +313,7 @@ export function Navbar() {
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú de opciones'}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 lg:hidden dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200 xl:hidden dark:border-slate-800 dark:bg-slate-800 dark:text-slate-200"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -302,7 +327,7 @@ export function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="Menú principal de navegación"
-          className="fixed inset-0 z-50 flex justify-end lg:hidden"
+          className="fixed inset-0 z-50 flex justify-end xl:hidden"
         >
           {/* Backdrop con desenfoque */}
           <div

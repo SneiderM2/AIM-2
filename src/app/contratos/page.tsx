@@ -38,7 +38,32 @@ export default function ContractsPage() {
   const { currentUser } = usePropTech();
   const [isPending, startTransition] = useTransition();
 
-  // Control de Acceso: Exclusivo Administrador
+  // Parámetros del contrato Ley 820 de 2003
+  const [agreedMonthlyRentCop, setAgreedMonthlyRentCop] = useState(3850000);
+  const [propertyValuationCop] = useState(450000000);
+  const [securityDepositCop, setSecurityDepositCop] = useState(0);
+  const [annualIpcAdjustmentCapPct, setAnnualIpcAdjustmentCapPct] = useState(5.2);
+  const [noticePeriodMonths, setNoticePeriodMonths] = useState(3);
+  const [otpToken, setOtpToken] = useState('482910');
+
+  // Estado del flujo transaccional de firma
+  const [draftData, setDraftData] = useState<{
+    contractId: string;
+    contractNumber: string;
+    documentContentSha256: string;
+    watermarkConfig: PdfWatermarkConfig;
+  } | null>(null);
+
+  const [landlordEvidence, setLandlordEvidence] = useState<PartySignatureEvidence | null>(null);
+  const [tenantEvidence, setTenantEvidence] = useState<PartySignatureEvidence | null>(null);
+  const [judicialCertificate, setJudicialCertificate] = useState<JudicialAuditCertificate | null>(
+    null
+  );
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Control de Acceso: Exclusivo Administrador.
+  // IMPORTANTE: debe evaluarse DESPUÉS de todos los hooks para no alterar su orden
+  // cuando el rol se hidrata desde localStorage (tenant -> agent) y React no falle.
   if (currentUser.role !== 'agent') {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
@@ -68,29 +93,6 @@ export default function ContractsPage() {
       </div>
     );
   }
-
-  // Parámetros del contrato Ley 820 de 2003
-  const [agreedMonthlyRentCop, setAgreedMonthlyRentCop] = useState(3850000);
-  const [propertyValuationCop] = useState(450000000);
-  const [securityDepositCop, setSecurityDepositCop] = useState(0);
-  const [annualIpcAdjustmentCapPct, setAnnualIpcAdjustmentCapPct] = useState(5.2);
-  const [noticePeriodMonths, setNoticePeriodMonths] = useState(3);
-  const [otpToken, setOtpToken] = useState('482910');
-
-  // Estado del flujo transaccional de firma
-  const [draftData, setDraftData] = useState<{
-    contractId: string;
-    contractNumber: string;
-    documentContentSha256: string;
-    watermarkConfig: PdfWatermarkConfig;
-  } | null>(null);
-
-  const [landlordEvidence, setLandlordEvidence] = useState<PartySignatureEvidence | null>(null);
-  const [tenantEvidence, setTenantEvidence] = useState<PartySignatureEvidence | null>(null);
-  const [judicialCertificate, setJudicialCertificate] = useState<JudicialAuditCertificate | null>(
-    null
-  );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Paso 1: Generar Borrador y Calcular SHA-256 Inicial
   const handleCreateDraft = () => {
