@@ -46,39 +46,39 @@ export function MobileBottomNav({ onOpenMobileMenu }: MobileBottomNavProps) {
         {/* 1. Buscador */}
         <Link
           href="/"
-          className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
+          className={`active-press flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-all ${
             pathname === '/'
               ? 'text-[#005088] dark:text-[#11CAA0]'
               : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           }`}
         >
-          <Search className="h-5 w-5" />
+          <Search className="h-5 w-5 transition-transform duration-200" />
           <span>Buscador</span>
         </Link>
 
         {/* 2. Panel Centralizado */}
         <Link
           href="/panel"
-          className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
+          className={`active-press flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-all ${
             pathname === '/panel'
               ? 'text-[#005088] dark:text-[#11CAA0]'
               : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           }`}
         >
-          <LayoutGrid className="h-5 w-5" />
+          <LayoutGrid className="h-5 w-5 transition-transform duration-200" />
           <span>Panel</span>
         </Link>
 
         {/* 3. Acción Primaria según Rol */}
         <Link
           href={primaryAction.href}
-          className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
+          className={`active-press flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-all ${
             pathname === primaryAction.href
               ? 'text-[#005088] dark:text-[#11CAA0]'
               : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
           }`}
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00805A]/15 text-[#00805A] dark:bg-[#11CAA0]/20 dark:text-[#11CAA0]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00805A]/15 text-[#00805A] shadow-sm transition-transform duration-200 dark:bg-[#11CAA0]/20 dark:text-[#11CAA0]">
             <PrimaryIcon className="h-4 w-4" />
           </div>
           <span>{primaryAction.label}</span>
@@ -88,13 +88,13 @@ export function MobileBottomNav({ onOpenMobileMenu }: MobileBottomNavProps) {
         {primaryAction.href !== '/planes' && (
           <Link
             href="/planes"
-            className={`flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-colors ${
+            className={`active-press flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold transition-all ${
               pathname === '/planes'
                 ? 'text-[#005088] dark:text-[#11CAA0]'
                 : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
             }`}
           >
-            <CreditCard className="h-5 w-5" />
+            <CreditCard className="h-5 w-5 transition-transform duration-200" />
             <span>Planes</span>
           </Link>
         )}
@@ -103,10 +103,10 @@ export function MobileBottomNav({ onOpenMobileMenu }: MobileBottomNavProps) {
         <button
           type="button"
           onClick={onOpenMobileMenu}
-          className="flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="active-press flex flex-col items-center justify-center gap-1 py-1 text-[11px] font-bold text-slate-500 hover:text-slate-900 transition-all dark:text-slate-400 dark:hover:text-white"
           aria-label="Abrir menú de navegación completo"
         >
-          <Menu className="h-5 w-5" />
+          <Menu className="h-5 w-5 transition-transform duration-200" />
           <span>Más</span>
         </button>
       </div>

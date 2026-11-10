@@ -250,7 +250,7 @@ export function PropertySearchSplitView({
         <aside
           role="status"
           aria-live="polite"
-          className="fixed bottom-20 left-3 right-3 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-emerald-400 bg-slate-900 px-4 py-3.5 text-xs font-bold text-white shadow-2xl sm:bottom-6 sm:left-auto sm:right-6"
+          className="fixed bottom-20 left-3 right-3 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-2xl border border-emerald-400 bg-slate-900 px-4 py-3.5 text-xs font-bold text-white shadow-2xl sm:bottom-6 sm:left-auto sm:right-6 animate-fade-in-up"
         >
           <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
           <div className="min-w-0 flex-1">
@@ -530,8 +530,9 @@ export function PropertySearchSplitView({
               <span className="font-semibold text-slate-900">{sourceProperties.length}</span> propiedades activas bajo{' '}
               <span className="font-medium text-emerald-700">Ley 820 de 2003</span>
               {isPending && (
-                <span className="ml-2 inline-block animate-pulse rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-                  Sincronizando URL...
+                <span className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-xs font-bold text-emerald-800 shadow-sm transition-all dark:bg-emerald-950/80 dark:text-emerald-300">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                  Filtrando al instante...
                 </span>
               )}
             </p>
@@ -540,7 +541,7 @@ export function PropertySearchSplitView({
           <div className="flex items-center gap-2">
             <Link
               href="/panel"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#005088] px-3.5 py-2 text-xs font-bold text-white shadow hover:bg-[#1B365D]"
+              className="active-press inline-flex items-center gap-1.5 rounded-xl bg-[#005088] px-3.5 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-[#1B365D]"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               Abrir Panel ({currentUser.roleLabel.split(' / ')[0]})
@@ -594,8 +595,12 @@ export function PropertySearchSplitView({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {filteredProperties.map((property) => {
+              <div
+                className={`grid grid-cols-1 gap-5 sm:grid-cols-2 transition-opacity duration-200 ${
+                  isPending ? 'opacity-70' : 'opacity-100'
+                }`}
+              >
+                {filteredProperties.map((property, idx) => {
                   const isHighlighted =
                     hoveredPropertyId === property.id ||
                     selectedMapPropertyId === property.id;
@@ -605,9 +610,10 @@ export function PropertySearchSplitView({
                       key={property.id}
                       onMouseEnter={() => setHoveredPropertyId(property.id)}
                       onMouseLeave={() => setHoveredPropertyId(null)}
-                      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white transition-all duration-200 ${
+                      style={{ animationDelay: `${Math.min(idx * 45, 320)}ms` }}
+                      className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white sgi-card-hover animate-fade-in-up ${
                         isHighlighted
-                          ? 'border-emerald-600 ring-2 ring-emerald-600/25 shadow-lg'
+                          ? 'border-emerald-600 ring-2 ring-emerald-600/25 shadow-xl -translate-y-1'
                           : 'border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md'
                       }`}
                     >
@@ -694,14 +700,14 @@ export function PropertySearchSplitView({
                             <button
                               type="button"
                               onClick={() => handleQuickApply(property)}
-                              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-emerald-600"
+                              className="active-press inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600"
                             >
                               <Send className="h-3.5 w-3.5" />
                               Postularme
                             </button>
                             <Link
                               href="/panel"
-                              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                              className="active-press inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700 transition-all hover:bg-slate-100"
                             >
                               CRUD
                             </Link>

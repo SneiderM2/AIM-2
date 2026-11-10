@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Navbar } from '../components/layout/Navbar';
+import { RouteLoadingIndicator } from '../components/layout/RouteLoadingIndicator';
 import { PwaRegistrar } from '../components/pwa/PwaRegistrar';
 import { PropTechProvider } from '../context/PropTechContext';
 import './globals.css';
@@ -57,6 +58,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <PropTechProvider>
           <NuqsAdapter>
+            <RouteLoadingIndicator />
             <Navbar />
             <main className="min-h-[calc(100vh-4rem)] pb-20 xl:pb-6">
               {children}

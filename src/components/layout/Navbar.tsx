@@ -202,7 +202,7 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all xl:px-3 xl:py-2 ${
+                  className={`active-press inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-semibold transition-all xl:px-3 xl:py-2 ${
                     isActive
                       ? 'bg-[#005088] text-white shadow-sm dark:bg-[#00805A]'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-[#005088] dark:text-slate-300 dark:hover:bg-slate-800'
@@ -241,7 +241,7 @@ export function Navbar() {
                   : 'Cambiar a Tema Blanco (Modo Claro)'
               }
               aria-label="Alternar tema blanco y negro"
-              className={`inline-flex items-center gap-1 rounded-xl border px-2 py-1.5 text-xs font-bold transition-all sm:px-2.5 ${
+              className={`active-press inline-flex items-center gap-1 rounded-xl border px-2 py-1.5 text-xs font-bold transition-all sm:px-2.5 ${
                 theme === 'dark'
                   ? 'border-amber-400/40 bg-neutral-800 text-amber-300 hover:bg-neutral-700'
                   : 'border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200'
@@ -292,7 +292,7 @@ export function Navbar() {
                   type="button"
                   onClick={handleLogout}
                   title="Cerrar sesión actual"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-400"
+                  className="active-press inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100 dark:border-rose-900/40 dark:bg-rose-950/30 dark:text-rose-400"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   <span>Salir</span>

@@ -130,7 +130,8 @@ html.dark tbody tr:hover {
   }
 }
 
-/* Soporte de área segura (Notch y barra inferior de iOS / Android) */@supports (padding: env(safe-area-inset-bottom)) {
+/* Soporte de área segura (Notch y barra inferior de iOS / Android) */
+@supports (padding: env(safe-area-inset-bottom)) {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -138,3 +139,98 @@ html.dark tbody tr:hover {
     padding-top: env(safe-area-inset-top);
   }
 }
+
+/* ============================================================================
+   MICRO-ANIMACIONES Y EFECTOS DE PERCEPCIÓN DE INMEDIATEZ (PERCEIVED PERFORMANCE)
+   Efectos de Shimmer luminiscente, entrada suave y física táctil (Thumb-Zone).
+   ============================================================================ */
+
+/* 1. Shimmer Skeleton Luminiscente */
+@keyframes sgi-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.sgi-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 232, 240, 0.45) 0%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(226, 232, 240, 0.45) 100%
+  );
+  background-size: 200% 100%;
+  animation: sgi-shimmer 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.dark .sgi-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.55) 0%,
+    rgba(51, 65, 85, 0.85) 50%,
+    rgba(30, 41, 59, 0.55) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* 2. Entrada suave de tarjetas y modales */
+@keyframes sgi-fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in-up {
+  animation: sgi-fade-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 3. Pulso de radar geoespacial para cartografía */
+@keyframes sgi-radar {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.35;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-radar {
+  animation: sgi-radar 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* 4. Micro-interacción física de toque/clic (Instant Touch Feedback) */
+.active-press {
+  transition: transform 0.14s cubic-bezier(0.4, 0, 0.2, 1), filter 0.14s ease, box-shadow 0.14s ease;
+}
+
+.active-press:active {
+  transform: scale(0.96);
+  filter: brightness(0.96);
+}
+
+/* 5. Transición fluida para tarjetas de inmuebles */
+.sgi-card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+  will-change: transform, box-shadow;
+}
+
+.sgi-card-hover:hover {
+  transform: translateY(-3px);
+}
+
