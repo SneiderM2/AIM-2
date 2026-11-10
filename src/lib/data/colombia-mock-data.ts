@@ -33,6 +33,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 1,
     latitude: 4.3412,
     longitude: -74.367,
+    fictitiousAddress: 'Cra. 8 # 18-45, Barrio Balmoral, Fusagasugá',
     coverImageUrl:
       'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -54,6 +55,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 1,
     latitude: 4.3365,
     longitude: -74.3638,
+    fictitiousAddress: 'Calle 7 # 5-28 Apto 402, Centro, Fusagasugá',
     coverImageUrl:
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -75,6 +77,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 1,
     latitude: 4.338,
     longitude: -74.36,
+    fictitiousAddress: 'Transversal 12 # 22-10, Barrio Manila, Fusagasugá',
     coverImageUrl:
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -96,6 +99,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 3,
     latitude: 4.3168,
     longitude: -74.423,
+    fictitiousAddress: 'Km 62 Vía Panamericana, Condominio Los Guayabos Lote 14, Chinauta',
     coverImageUrl:
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -117,6 +121,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 2,
     latitude: 4.3435,
     longitude: -74.358,
+    fictitiousAddress: 'Av. Las Palmas # 11-04 Casa 8, El Coburgo, Fusagasugá',
     coverImageUrl:
       'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -138,6 +143,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 1,
     latitude: 4.332,
     longitude: -74.3665,
+    fictitiousAddress: 'Diagonal 16 # 9-33 Local 1, Barrio Pekín, Fusagasugá',
     coverImageUrl:
       'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -159,6 +165,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 1,
     latitude: 4.4039,
     longitude: -74.3872,
+    fictitiousAddress: 'Calle 4 # 3-12, Sector Campestre Los Pinos, Silvania',
     coverImageUrl:
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,
@@ -180,6 +187,7 @@ export const INITIAL_COLOMBIAN_PROPERTIES: PropertyCardDTO[] = [
     parkingSpots: 2,
     latitude: 4.2721,
     longitude: -74.4172,
+    fictitiousAddress: 'Vereda San Antonio Km 2, Finca Los Naranjos, Arbeláez',
     coverImageUrl:
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=80',
     isLey820Compliant: true,

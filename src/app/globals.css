@@ -234,3 +234,113 @@ html.dark .sgi-shimmer {
   transform: translateY(-3px);
 }
 
+/* ============================================================================
+   6. ESTILOS DE PINES Y MAPA INTERACTIVO REAL (LEAFLET / SUMAPAZ)
+   Pines de precios estilo Airbnb con transiciones 3D y puntero direccional.
+   ============================================================================ */
+
+.sgi-marker-container {
+  background: transparent !important;
+  border: none !important;
+}
+
+.sgi-pin-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateZ(0);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sgi-pin-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  color: #1b365d;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1;
+  padding: 5px 8px;
+  border-radius: 9999px;
+  border: 1.5px solid #005088;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sgi-pin-pointer {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #005088;
+  margin-top: -1px;
+  transition: border-top-color 0.2s ease;
+}
+
+.sgi-pin-wrapper:hover,
+.sgi-pin-wrapper.pin-highlighted {
+  transform: scale(1.18) translateY(-4px);
+  z-index: 9999 !important;
+}
+
+.sgi-pin-wrapper:hover .sgi-pin-pill,
+.sgi-pin-wrapper.pin-highlighted .sgi-pin-pill {
+  background-color: #00805a !important;
+  color: #ffffff !important;
+  border-color: #11caa0 !important;
+  box-shadow: 0 8px 20px rgba(0, 128, 90, 0.6) !important;
+}
+
+.sgi-pin-wrapper:hover .sgi-pin-pointer,
+.sgi-pin-wrapper.pin-highlighted .sgi-pin-pointer {
+  border-top-color: #00805a !important;
+}
+
+/* Ajustes a controles nativos de Leaflet */
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #1b365d !important;
+  font-weight: bold !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  transition: background-color 0.15s ease !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #f1f5f9 !important;
+}
+
+html.dark .leaflet-control-zoom a {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+  color: #f8fafc !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .leaflet-control-zoom a:hover {
+  background-color: #334155 !important;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+  border-top-left-radius: 6px !important;
+}
+
+html.dark .leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.75) !important;
+  color: #94a3b8 !important;
+}
+
+
