@@ -3,16 +3,16 @@
 /**
  * @file RouteLoadingIndicator.tsx
  * @description Barra de progreso ultra-rápida en la parte superior del viewport (Top Loader)
- *              que proporciona retroalimentación visual táctil inmediata (Perceived Performance)
+ *              que proporciona retroalimentación visual inmediata (Perceived Performance)
  *              al hacer clic en cualquier enlace interno o cambio de ruta.
+ *              Compatible con Static Site Generation (SSG) y export sin CSR bailouts.
  */
 
-import React, { useEffect, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import React, { Suspense, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
-export function RouteLoadingIndicator() {
+function RouteLoadingBar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -33,10 +33,13 @@ export function RouteLoadingIndicator() {
         !e.metaKey &&
         !e.shiftKey
       ) {
-        // Si es la misma ruta sin query nueva, no activar
-        const url = new URL(href, window.location.href);
-        if (url.pathname === window.location.pathname && url.search === window.location.search) {
-          return;
+        try {
+          const url = new URL(href, window.location.href);
+          if (url.pathname === window.location.pathname && url.search === window.location.search) {
+            return;
+          }
+        } catch {
+          // Si URL falla al parsear, ignorar
         }
 
         setLoading(true);
@@ -63,7 +66,7 @@ export function RouteLoadingIndicator() {
     };
   }, [loading]);
 
-  // Completar y desvanecer cuando el pathname o searchParams cambian
+  // Completar y desvanecer cuando el pathname cambia
   useEffect(() => {
     if (loading) {
       setProgress(100);
@@ -73,7 +76,7 @@ export function RouteLoadingIndicator() {
       }, 260);
       return () => clearTimeout(timer);
     }
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   if (!loading && progress === 0) return null;
 
@@ -87,9 +90,20 @@ export function RouteLoadingIndicator() {
         style={{
           width: `${progress}%`,
           opacity: progress === 100 ? 0 : 1,
-          transition: progress === 100 ? 'width 150ms ease-out, opacity 250ms 100ms ease-in' : 'width 300ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition:
+            progress === 100
+              ? 'width 150ms ease-out, opacity 250ms 100ms ease-in'
+              : 'width 300ms cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       />
     </div>
+  );
+}
+
+export function RouteLoadingIndicator() {
+  return (
+    <Suspense fallback={null}>
+      <RouteLoadingBar />
+    </Suspense>
   );
 }
