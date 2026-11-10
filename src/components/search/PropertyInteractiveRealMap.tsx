@@ -25,20 +25,14 @@ interface PropertyInteractiveRealMapProps {
 const TILE_LAYERS = {
   streets: {
     name: 'Calles / Urbano',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> &copy; OpenStreetMap',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   },
   satellite: {
     name: 'Satélite HD',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    maxZoom: 19,
-  },
-  dark: {
-    name: 'Modo Noche',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; CARTO &copy; OpenStreetMap',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP',
     maxZoom: 19,
   },
 };
@@ -68,6 +62,7 @@ export function PropertyInteractiveRealMap({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const initialFitDoneRef = useRef(false);
   const [activeTileType, setActiveTileType] = useState<'streets' | 'satellite'>('streets');
   const [activePopupProperty, setActivePopupProperty] = useState<PropertyCardDTO | null>(null);
 
@@ -181,6 +176,13 @@ export function PropertyInteractiveRealMap({
 
       markersGroup.addLayer(marker);
     });
+
+    // Auto-ajustar encuadre la primera vez para que todos los inmuebles sean visibles
+    if (!initialFitDoneRef.current && properties.length > 0) {
+      const bounds = L.latLngBounds(properties.map((p) => [p.latitude, p.longitude]));
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+      initialFitDoneRef.current = true;
+    }
   }, [properties, hoveredPropertyId, selectedPropertyId, onSelectProperty, onHoverProperty]);
 
   // 4. Volar hacia el inmueble seleccionado cuando el usuario interactúa desde la lista
